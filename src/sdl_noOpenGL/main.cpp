@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "Floor.h"
 #include "Ladder.h"
+#include "Text.h"
 
 #include <iostream>
 #include <vector>
@@ -15,6 +16,7 @@
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
 #include <SDL_rect.h>
+#include <SDL_ttf.h>
 
 std::string exeName;
 SDL_Window *win; //pointer to the SDL_Window
@@ -30,6 +32,7 @@ SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 player Player = player();
 Level level = Level();
 Enemy enemy = Enemy();
+Text text = Text();
 Floor floorArray[144];
 Ladder ladderArray[144];
 
@@ -197,9 +200,12 @@ void handleMovement()
 
 	if (Player.jumpCtrl == true && Player.jumpTime < 4.0f) {
 		Player.vSpeed -= (6 - Player.jumpTime);
-		Player.jumpTime += 0.05f + Player.jumpTime;
+		Player.jumpTime += 0.2f + Player.jumpTime;
+		if (Player.jumpTime >= 3) {
+			Player.jumpCtrl = false;
+		}
 	}
-	else { Player.jumpCtrl == false; }
+	
 
 	if (Player.vSpeed >= 3) {
 		Player.vSpeed = 3;
@@ -340,6 +346,12 @@ void render()
 		dstBackground.w = 800;
 		dstBackground.h = 378;
 
+		text.textRect.x = 0;
+		text.textRect.y = 0;
+		text.textRect.w = 400;
+		text.textRect.h = 400;
+
+
 		SDL_RenderCopy(ren, forestTex, &srcBackground, &dstBackground);
 
 		for (int i = 0; i < 12; i++) {
@@ -356,6 +368,8 @@ void render()
 			dstFloor.x = 0;
 		}
 		SDL_RenderCopyEx(ren, playerTex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
+		SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+
 
 		//Update the screen
 		SDL_RenderPresent(ren);
@@ -471,6 +485,17 @@ int main( int argc, char* args[] )
 		SDL_Quit();
 		return 1;
 	}
+	SDL_Color White = { 255, 255, 255 };
+
+	int ttfReturn = TTF_Init();
+	if (ttfReturn  == -1)
+	{
+		std::cout << "TTF_Init Failed: " << TTF_GetError() << std::endl;
+	}
+
+	text.initText();
+	text.textSurface = TTF_RenderText_Solid(text.sans, "Level", White);
+	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 	
 	int fCount = 0;
 	//int lCount = 0;

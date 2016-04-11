@@ -37,12 +37,8 @@ Dependencies for OpenGL projects in C++
     ** https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.12-VC.zip[Windows Visual C++ 32/64 dev headers and binaries]
     ** Ubuntu/Debian, package: libsdl2-ttf-dev
 
-- http://ffmpeg.zeranoe.com/builds/
-  * FFmpeg git-d897d4c 32-bit Dev
-    ** http://ffmpeg.zeranoe.com/builds/win32/dev/ffmpeg-20151027-git-d897d4c-win32-dev.7z[[Windows Visual C++ 32 dev headers and binaries]
-    ** Ubuntu/Debian, packages: libavutil-dev, libavcodec-dev, libavformat-dev, libavdevice-dev, libavfilter-dev, libswscale-dev, libswresample-dev, libpostproc-dev
+- https://www.libsdl.org/projects/SDL_mixer/[SDL_mixer]
+  * SDL_mixer 2.0.1
+    ** https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.1-VC.zipp[Windows Visual C++ 32/64 dev headers and binaries]
+    ** Ubuntu/Debian, package: libsdl2-mixer-dev
 
-- https://github.com/assimp/assimp[Assimp - Open Asset Import Library]
-  * assimp3
-    ** don't use the published pre-built binaries for Windows, instead build your own (or use those in this repository (only 32-bit provided at this point)
-    ** Ubuntu/Debian, package: libassimp-dev
