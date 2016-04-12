@@ -6,6 +6,7 @@
 #include "Floor.h"
 #include "Ladder.h"
 #include "Text.h"
+#include "Sound.h"
 
 #include <iostream>
 #include <vector>
@@ -17,6 +18,7 @@
 #include <SDL_image.h>
 #include <SDL_rect.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 std::string exeName;
 SDL_Window *win; //pointer to the SDL_Window
@@ -33,19 +35,16 @@ player Player = player();
 Level level = Level();
 Enemy enemy = Enemy();
 Text text = Text();
+Sound sound = Sound();
 Floor floorArray[144];
 Ladder ladderArray[144];
 
 bool done = false;
+bool collisionFrame = false;
 
 int animTime = 0;
 
 int x;
-
-int floorCollision = 0;
-int ladderCollision = 0;
-int sideCollision = 0;
-int roofCollision = 0;
 
 bool handleCollision()
 {
@@ -200,7 +199,7 @@ void handleMovement()
 
 	if (Player.jumpCtrl == true && Player.jumpTime < 4.0f) {
 		Player.vSpeed -= (6 - Player.jumpTime);
-		Player.jumpTime += 0.2f + Player.jumpTime;
+		Player.jumpTime += 0.05f + Player.jumpTime;
 		if (Player.jumpTime >= 3) {
 			Player.jumpCtrl = false;
 		}
@@ -243,25 +242,27 @@ void attemptMovement()
 		if (Player.vSpeed < 0) {
 			Player.obj.yPos += 1;
 		}
+		collisionFrame = true;
 	}
 }
 // tag::updateSimulation[]
 void updateSimulation(double simLength = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
 	animTime++;
-
+	collisionFrame = false;
 	handleMovement();
 	handleForces();
 	attemptMovement();
 
-	if (animTime == 4) {
-		if (Player.moveCtrl == true)
-		{
+	if (animTime >= 3) {
+		//if (Player.moveCtrl == true)
+		//{
 			Player.playerWalk += 1;
-			if (Player.playerWalk > 5) {
+			if (Player.playerWalk > 7) {
 				Player.playerWalk = 0;
+				Mix_PlayChannel(1, sound.footstep, 0);
 			}
-		}
+		//}
 		if (Player.climbCtrl == true)
 		{
 			Player.playerClimb += 1;
@@ -279,12 +280,12 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 		Player.xPlayerSpriteIndex = 0;
 	}
 	if (Player.vSpeed > 0 &&
-		!handleLadderCollision()) {
+		!handleLadderCollision() &&
+		collisionFrame == false) {
 		Player.xPlayerSpriteIndex = Player.xPlayerFallSpriteIndex[Player.playerWalk];
 		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerWalk];
 	}
-	if (Player.moveCtrl == true &&
-		!handleLadderCollision()) {
+	if (Player.moveCtrl == true) {
 		Player.xPlayerSpriteIndex = Player.xPlayerWalkSpriteIndex[Player.playerWalk];
 		Player.yPlayerSpriteIndex = Player.yPlayerWalkSpriteIndex[Player.playerWalk];
 	}
@@ -293,8 +294,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 		Player.xPlayerSpriteIndex = Player.xPlayerClimbSpriteIndex[Player.playerClimb];
 		Player.yPlayerSpriteIndex = Player.yPlayerClimbSpriteIndex[Player.playerClimb];
 	}
-	if (Player.vSpeed == 0 &&
-		Player.moveCtrl == false &&
+	if (Player.moveCtrl == false &&
 		!handleLadderCollision()) {
 		Player.xPlayerSpriteIndex = Player.xPlayerIdleSpriteIndex[Player.playerWalk];
 		Player.yPlayerSpriteIndex = Player.yPlayerIdleSpriteIndex[Player.playerWalk];
@@ -323,7 +323,7 @@ void render()
 
 		dstPlayer.x = Player.obj.xPos;
 		dstPlayer.y = Player.obj.yPos;
-		dstPlayer.w = 32;
+		dstPlayer.w = 42;
 		dstPlayer.h = 32;
 
 		srcFloor.x = 0;
@@ -346,10 +346,10 @@ void render()
 		dstBackground.w = 800;
 		dstBackground.h = 378;
 
-		text.textRect.x = 0;
+		text.textRect.x = 400;
 		text.textRect.y = 0;
-		text.textRect.w = 400;
-		text.textRect.h = 400;
+		text.textRect.w = 120;
+		text.textRect.h = 24;
 
 
 		SDL_RenderCopy(ren, forestTex, &srcBackground, &dstBackground);
@@ -384,7 +384,7 @@ int main( int argc, char* args[] )
 		exit(1);
 	}
 	std::cout << "SDL initialised OK!\n";
-
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	//create window
 	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 600, 384, SDL_WINDOW_SHOWN);
 
@@ -492,9 +492,9 @@ int main( int argc, char* args[] )
 	{
 		std::cout << "TTF_Init Failed: " << TTF_GetError() << std::endl;
 	}
-
+	sound.loadSounds();
 	text.initText();
-	text.textSurface = TTF_RenderText_Solid(text.sans, "Level", White);
+	text.textSurface = TTF_RenderText_Solid(text.sans, "Level 1", White);
 	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 	
 	int fCount = 0;

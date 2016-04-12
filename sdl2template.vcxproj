@@ -103,6 +103,7 @@
     <ClInclude Include="src\sdl_noOpenGL\GameObject.h" />
     <ClInclude Include="src\sdl_noOpenGL\Ladder.h" />
     <ClInclude Include="src\sdl_noOpenGL\Level.h" />
+    <ClInclude Include="src\sdl_noOpenGL\Sound.h" />
     <ClInclude Include="src\sdl_noOpenGL\Text.h" />
     <ClInclude Include="src\sdl_noOpenGL\player.h" />
     <ClInclude Include="src\sdl_noOpenGL\sprite.h" />

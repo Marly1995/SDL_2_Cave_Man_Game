@@ -38,8 +38,8 @@ public:
 
 void Text::initText()
 {
-	sans = TTF_OpenFont("assets/Hack-Regular.ttf", 50);
-	assert(sans != nullptr);
+	sans = TTF_OpenFont("assets/Hack-Regular.ttf", 96);
+	//assert(sans != nullptr);
 	if (sans == nullptr)
 	{
 		std::cout << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
