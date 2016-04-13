@@ -170,6 +170,7 @@ void handleForces()
 		Player.hSpeed += 1;
 	}
 	if (handleLadderCollision()) {
+		Player.jumpCtrl = false;
 		if (Player.vSpeed > 0) {
 			Player.vSpeed -= 1;
 		}
@@ -179,16 +180,16 @@ void handleForces()
 		}
 	}
 	else {
-		Player.vSpeed += 3;
+		Player.vSpeed += 2;
 	}
 }
 void handleMovement()
 {	
 	if (Player.moveUp == true) {
-		Player.vSpeed -= 3;
+		Player.vSpeed -= 2;
 	}
 	if (Player.moveDown == true) {
-		Player.vSpeed += 3;
+		Player.vSpeed += 2;
 	}
 	if (Player.moveLeft == true) {
 		Player.hSpeed -= 3;
@@ -197,10 +198,11 @@ void handleMovement()
 		Player.hSpeed += 3;
 	}
 
-	if (Player.jumpCtrl == true && Player.jumpTime < 4.0f) {
-		Player.vSpeed -= (6 - Player.jumpTime);
-		Player.jumpTime += 0.05f + Player.jumpTime;
-		if (Player.jumpTime >= 3) {
+	if (Player.jumpCtrl == true && Player.jumpTime < 6.0f
+		&& !handleLadderCollision()) {
+		Player.vSpeed -= (4 - Player.jumpTime);
+		Player.jumpTime += 0.001f + Player.jumpTime;
+		if (Player.jumpTime >= 5) {
 			Player.jumpCtrl = false;
 		}
 	}
@@ -255,14 +257,25 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	attemptMovement();
 
 	if (animTime >= 3) {
-		//if (Player.moveCtrl == true)
-		//{
-			Player.playerWalk += 1;
-			if (Player.playerWalk > 7) {
-				Player.playerWalk = 0;
-				Mix_PlayChannel(1, sound.footstep, 0);
-			}
-		//}
+
+		Player.playerIdle += 1;
+		if (Player.playerIdle > 6) {
+			Player.playerIdle = 0;
+		}
+		Player.playerFall += 1;
+		if (Player.playerFall > 2) {
+			Player.playerFall = 0;
+		}
+		Player.playerJump += 1;
+		if (Player.playerJump > 2) {
+			Player.playerJump = 0;
+		}
+		Player.playerWalk += 1;
+		if (Player.playerWalk > 7) {
+			Player.playerWalk = 0;
+			Mix_PlayChannel(1, sound.footstep, 0);
+		}
+
 		if (Player.climbCtrl == true)
 		{
 			Player.playerClimb += 1;
@@ -279,12 +292,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	if (Player.climbCtrl == false) {
 		Player.xPlayerSpriteIndex = 0;
 	}
-	if (Player.vSpeed > 0 &&
-		!handleLadderCollision() &&
-		collisionFrame == false) {
-		Player.xPlayerSpriteIndex = Player.xPlayerFallSpriteIndex[Player.playerWalk];
-		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerWalk];
-	}
+
 	if (Player.moveCtrl == true) {
 		Player.xPlayerSpriteIndex = Player.xPlayerWalkSpriteIndex[Player.playerWalk];
 		Player.yPlayerSpriteIndex = Player.yPlayerWalkSpriteIndex[Player.playerWalk];
@@ -296,8 +304,20 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 	}
 	if (Player.moveCtrl == false &&
 		!handleLadderCollision()) {
-		Player.xPlayerSpriteIndex = Player.xPlayerIdleSpriteIndex[Player.playerWalk];
-		Player.yPlayerSpriteIndex = Player.yPlayerIdleSpriteIndex[Player.playerWalk];
+		Player.xPlayerSpriteIndex = Player.xPlayerIdleSpriteIndex[Player.playerIdle];
+		Player.yPlayerSpriteIndex = Player.yPlayerIdleSpriteIndex[Player.playerIdle];
+	}
+	if (Player.vSpeed < 0 &&
+		!handleLadderCollision() &&
+		collisionFrame == false) {
+		Player.xPlayerSpriteIndex = Player.xPlayerJumpSpriteIndex[Player.playerJump];
+		Player.yPlayerSpriteIndex = Player.yPlayerJumpSpriteIndex[Player.playerJump];
+	}
+	if (Player.vSpeed > 0 &&
+		!handleLadderCollision() &&
+		collisionFrame == false) {
+		Player.xPlayerSpriteIndex = Player.xPlayerFallSpriteIndex[Player.playerFall];
+		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerFall];
 	}
 
 }
@@ -386,7 +406,7 @@ int main( int argc, char* args[] )
 	std::cout << "SDL initialised OK!\n";
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	//create window
-	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 600, 384, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 1000, 1000, SDL_WINDOW_SHOWN);
 
 	//error handling
 	if (win == nullptr)

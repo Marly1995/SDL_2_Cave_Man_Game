@@ -38,6 +38,9 @@ public:
 
 	int playerWalk = 0;
 	int playerClimb = 0;
+	int playerIdle = 0;
+	int playerFall = 0;
+	int playerJump = 0;
 	int gravity;
 
 	bool moveDown;
