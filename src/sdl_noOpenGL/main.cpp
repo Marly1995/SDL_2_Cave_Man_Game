@@ -41,6 +41,7 @@ Ladder ladderArray[144];
 
 bool done = false;
 bool collisionFrame = false;
+bool pause = false;
 
 int animTime = 0;
 
@@ -132,6 +133,9 @@ void handleInput()
 					case SDLK_SPACE: Player.jumpCtrl = true;
 						Player.jumpTime = 0;
 						break;
+					case SDLK_p: if (pause == false) { pause = true; }
+								 else { pause = false; }
+						break;
 				}
 			break;
 		case SDL_KEYUP:
@@ -157,6 +161,99 @@ void handleInput()
 				}
 			break;
 		}
+	}
+}
+void simulateAnimation()
+{
+	if (animTime >= 3) {
+
+		Player.playerIdle += 1;
+		if (Player.playerIdle > 6) {
+			Player.playerIdle = 0;
+		}
+		Player.playerFall += 1;
+		if (Player.playerFall > 2) {
+			Player.playerFall = 0;
+		}
+		Player.playerJump += 1;
+		if (Player.playerJump > 2) {
+			Player.playerJump = 0;
+		}
+		Player.playerWalk += 1;
+		if (Player.playerWalk > 7) {
+			Player.playerWalk = 0;
+			Mix_PlayChannel(1, sound.footstep, 0);
+		}
+
+		if (Player.climbCtrl == true)
+		{
+			Player.playerClimb += 1;
+			if (Player.playerClimb > 3) {
+				Player.playerClimb = 0;
+			}
+		}
+		animTime = 0;
+	}
+}
+
+void handleAnimation()
+{
+	if (Player.moveCtrl == false) {
+		Player.xPlayerSpriteIndex = 0;
+	}
+	if (Player.climbCtrl == false) {
+		Player.xPlayerSpriteIndex = 0;
+	}
+
+	if (Player.moveCtrl == true) {
+		Player.animation = "walk";
+	}
+	if (Player.climbCtrl == true &&
+		handleLadderCollision()) {
+		Player.animation = "climb";
+	}
+	if (Player.moveCtrl == false &&
+		!handleLadderCollision()) {
+		Player.animation = "idle";
+	}
+	if (Player.vSpeed < 0 &&
+		!handleLadderCollision() &&
+		collisionFrame == false) {
+		Player.animation = "jump";
+	}
+	if (Player.vSpeed > 0 &&
+		!handleLadderCollision() &&
+		collisionFrame == false) {
+		Player.animation = "fall";
+	}
+}
+
+void updateAnimation()
+{
+	if (Player.animation == "walk")
+	{
+		Player.xPlayerSpriteIndex = Player.xPlayerWalkSpriteIndex[Player.playerWalk];
+		Player.yPlayerSpriteIndex = Player.yPlayerWalkSpriteIndex[Player.playerWalk];
+	}
+	if (Player.animation == "climb")
+	{
+		Player.xPlayerSpriteIndex = Player.xPlayerClimbSpriteIndex[Player.playerClimb];
+		Player.yPlayerSpriteIndex = Player.yPlayerClimbSpriteIndex[Player.playerClimb];
+	}
+	if (Player.animation == "idle")
+	{
+		Player.xPlayerSpriteIndex = Player.xPlayerIdleSpriteIndex[Player.playerIdle];
+		Player.yPlayerSpriteIndex = Player.yPlayerIdleSpriteIndex[Player.playerIdle];
+	}
+	if (Player.animation == "jump")
+	{
+		Player.xPlayerSpriteIndex = Player.xPlayerJumpSpriteIndex[Player.playerJump];
+		Player.yPlayerSpriteIndex = Player.yPlayerJumpSpriteIndex[Player.playerJump];
+	}
+	if (Player.animation == "fall")
+	{
+		Player.xPlayerSpriteIndex = Player.xPlayerFallSpriteIndex[Player.playerFall];
+		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerFall];
 	}
 }
 // end::handleInput[]
@@ -252,74 +349,17 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 {
 	animTime++;
 	collisionFrame = false;
-	handleMovement();
-	handleForces();
-	attemptMovement();
 
-	if (animTime >= 3) {
-
-		Player.playerIdle += 1;
-		if (Player.playerIdle > 6) {
-			Player.playerIdle = 0;
-		}
-		Player.playerFall += 1;
-		if (Player.playerFall > 2) {
-			Player.playerFall = 0;
-		}
-		Player.playerJump += 1;
-		if (Player.playerJump > 2) {
-			Player.playerJump = 0;
-		}
-		Player.playerWalk += 1;
-		if (Player.playerWalk > 7) {
-			Player.playerWalk = 0;
-			Mix_PlayChannel(1, sound.footstep, 0);
-		}
-
-		if (Player.climbCtrl == true)
-		{
-			Player.playerClimb += 1;
-			if (Player.playerClimb > 3) {
-				Player.playerClimb = 0;
-			}
-		}
-		animTime = 0;
+	if (pause == false) {
+		handleMovement();
+		handleForces();
+		attemptMovement();
 	}
-
-	if (Player.moveCtrl == false) {
-		Player.xPlayerSpriteIndex = 0;
+	simulateAnimation();
+	if (pause == false) {
+		handleAnimation();
 	}
-	if (Player.climbCtrl == false) {
-		Player.xPlayerSpriteIndex = 0;
-	}
-
-	if (Player.moveCtrl == true) {
-		Player.xPlayerSpriteIndex = Player.xPlayerWalkSpriteIndex[Player.playerWalk];
-		Player.yPlayerSpriteIndex = Player.yPlayerWalkSpriteIndex[Player.playerWalk];
-	}
-	if (Player.climbCtrl == true &&
-		handleLadderCollision()) {
-		Player.xPlayerSpriteIndex = Player.xPlayerClimbSpriteIndex[Player.playerClimb];
-		Player.yPlayerSpriteIndex = Player.yPlayerClimbSpriteIndex[Player.playerClimb];
-	}
-	if (Player.moveCtrl == false &&
-		!handleLadderCollision()) {
-		Player.xPlayerSpriteIndex = Player.xPlayerIdleSpriteIndex[Player.playerIdle];
-		Player.yPlayerSpriteIndex = Player.yPlayerIdleSpriteIndex[Player.playerIdle];
-	}
-	if (Player.vSpeed < 0 &&
-		!handleLadderCollision() &&
-		collisionFrame == false) {
-		Player.xPlayerSpriteIndex = Player.xPlayerJumpSpriteIndex[Player.playerJump];
-		Player.yPlayerSpriteIndex = Player.yPlayerJumpSpriteIndex[Player.playerJump];
-	}
-	if (Player.vSpeed > 0 &&
-		!handleLadderCollision() &&
-		collisionFrame == false) {
-		Player.xPlayerSpriteIndex = Player.xPlayerFallSpriteIndex[Player.playerFall];
-		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerFall];
-	}
-
+	updateAnimation();
 }
 
 void render()

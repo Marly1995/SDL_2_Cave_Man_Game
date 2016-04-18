@@ -25,6 +25,7 @@ public:
 	int damage = 0;
 	int playerHealth = 50;
 	float jumpTime = 0.0f;
+	string animation;
 
 	int xPlayerSpriteIndex = 0;
 	int yPlayerSpriteIndex = 0;
