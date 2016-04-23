@@ -14,8 +14,8 @@ using namespace std;
 class GameObject
 {
 public:
-	int xPos;
-	int yPos;
+	float xPos;
+	float yPos;
 	int width = 32;
 	int height = 32;
 

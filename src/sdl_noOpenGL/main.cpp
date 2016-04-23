@@ -208,14 +208,13 @@ void handleAnimation()
 	if (Player.moveCtrl == true) {
 		Player.animation = "walk";
 	}
+	if (Player.moveCtrl == false) {
+		Player.animation = "idle";
+	}
 	if (Player.climbCtrl == true &&
 		handleLadderCollision()) {
 		Player.animation = "climb";
-	}
-	if (Player.moveCtrl == false &&
-		!handleLadderCollision()) {
-		Player.animation = "idle";
-	}
+	}	
 	if (Player.vSpeed < 0 &&
 		!handleLadderCollision() &&
 		collisionFrame == false) {
@@ -295,22 +294,22 @@ void handleMovement()
 		Player.hSpeed += 3;
 	}
 
-	if (Player.jumpCtrl == true && Player.jumpTime < 6.0f
+	if (Player.jumpCtrl == true && Player.jumpTime < 2.0f
 		&& !handleLadderCollision()) {
-		Player.vSpeed -= (4 - Player.jumpTime);
-		Player.jumpTime += 0.001f + Player.jumpTime;
-		if (Player.jumpTime >= 5) {
+		Player.vSpeed -= (3.5 - Player.jumpTime);
+		Player.jumpTime += 0.15f;
+		if (Player.jumpTime >= 2) {
 			Player.jumpCtrl = false;
 		}
 	}
 	
 
-	if (Player.vSpeed >= 3) {
-		Player.vSpeed = 3;
+	if (Player.vSpeed >= 2) {
+		Player.vSpeed = 2;
 	}
 	if (Player.jumpCtrl == false &&
-		Player.vSpeed <= -3) {
-		Player.vSpeed = -3;
+		Player.vSpeed <= -2) {
+		Player.vSpeed = -2;
 	}
 	if (Player.hSpeed >= 3) {
 		Player.hSpeed = 3;
@@ -322,7 +321,7 @@ void handleMovement()
 
 void attemptMovement()
 {
-	Player.obj.xPos += trunc(Player.hSpeed);
+	Player.obj.xPos += Player.hSpeed;
 	while (handleCollision()) {
 		if (Player.hSpeed > 0) {
 			Player.obj.xPos -= 1;
@@ -333,7 +332,7 @@ void attemptMovement()
 
 	}
 
-	Player.obj.yPos += trunc(Player.vSpeed);
+	Player.obj.yPos += Player.vSpeed;
 	while (handleCollision()) {
 		if (Player.vSpeed > 0) {
 			Player.obj.yPos -= 1;
@@ -348,7 +347,7 @@ void attemptMovement()
 void updateSimulation(double simLength = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
 	animTime++;
-	collisionFrame = false;
+	
 
 	if (pause == false) {
 		handleMovement();
@@ -360,6 +359,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 		handleAnimation();
 	}
 	updateAnimation();
+	collisionFrame = false;
 }
 
 void render()
@@ -406,10 +406,10 @@ void render()
 		dstBackground.w = 800;
 		dstBackground.h = 378;
 
-		text.textRect.x = 400;
-		text.textRect.y = 0;
-		text.textRect.w = 120;
-		text.textRect.h = 24;
+		text.textRect.x = 100;
+		text.textRect.y = 100;
+		text.textRect.w = 240;
+		text.textRect.h = 48;
 
 
 		SDL_RenderCopy(ren, forestTex, &srcBackground, &dstBackground);
@@ -428,7 +428,7 @@ void render()
 			dstFloor.x = 0;
 		}
 		SDL_RenderCopyEx(ren, playerTex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
-		SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+		if (pause == true){ SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect); }
 
 
 		//Update the screen
@@ -554,7 +554,7 @@ int main( int argc, char* args[] )
 	}
 	sound.loadSounds();
 	text.initText();
-	text.textSurface = TTF_RenderText_Solid(text.sans, "Level 1", White);
+	text.textSurface = TTF_RenderText_Solid(text.sans, "Paused", White);
 	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 	
 	int fCount = 0;
