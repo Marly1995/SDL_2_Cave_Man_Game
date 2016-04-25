@@ -18,14 +18,20 @@ private:
 
 public:
 	Mix_Chunk *footstep = NULL;
+	Mix_Chunk *footstep2 = NULL;
 
 	void loadSounds();
 };
 
 void Sound::loadSounds()
 {
-	footstep = Mix_LoadWAV("assets/sounds/sand-step.OGG");
+	footstep = Mix_LoadWAV("assets/sounds/wood-1.wav");
 	if (footstep == NULL)
+	{
+		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+	footstep2 = Mix_LoadWAV("assets/sounds/wood-3.wav");
+	if (footstep2 == NULL)
 	{
 		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
 	}

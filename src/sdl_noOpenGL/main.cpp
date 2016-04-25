@@ -34,24 +34,26 @@ SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 player Player = player();
 Level level = Level();
 Enemy enemy = Enemy();
-Text text = Text();
+Text text = Text("Paused");
 Sound sound = Sound();
-Floor floorArray[144];
-Ladder ladderArray[144];
+Floor floorArray[400];
+Ladder ladderArray[400];
 
 bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
 int animTime = 0;
+int audioTime = 0;
 
 int x;
-
+//TODO add save function
+// TODO compartmentalise collision for efficiency 
 bool handleCollision()
 {
 	//Player.moveDown = true;
 	//Player.moveUp = true;
-	for (int i = 0; i < 144; i++) {
+	for (int i = 0; i < 400; i++) {
 		if (Player.obj.collisionCheck(floorArray[i].obj) == true) {
 			return true;
 		}
@@ -64,7 +66,7 @@ bool handleLadderCollision()
 {
 	//Player.moveDown = true;
 	//Player.moveUp = true;
-	for (int i = 0; i < 144; i++) {
+	for (int i = 0; i <  400; i++) {
 		if (Player.obj.insideCollisionCheck(ladderArray[i].obj) == true) {
 			return true;
 		}
@@ -73,6 +75,7 @@ bool handleLadderCollision()
 
 }
 
+// TODO make into inputs calss
 void handleInput()
 {
 	//Event-based input handling
@@ -163,6 +166,19 @@ void handleInput()
 		}
 	}
 }
+
+// TODO add background music
+// TODO playing animation audio
+void simulateAudio()
+{
+	if (Player.animation == "walk") {
+		if(audioTime == 14){ Mix_PlayChannel(1, sound.footstep, 0); }
+		if (audioTime >= 28){ Mix_PlayChannel(1, sound.footstep2, 0); 
+		audioTime = 0;
+		}
+		
+	}
+}
 void simulateAnimation()
 {
 	if (animTime >= 3) {
@@ -182,7 +198,6 @@ void simulateAnimation()
 		Player.playerWalk += 1;
 		if (Player.playerWalk > 7) {
 			Player.playerWalk = 0;
-			Mix_PlayChannel(1, sound.footstep, 0);
 		}
 
 		if (Player.climbCtrl == true)
@@ -296,7 +311,7 @@ void handleMovement()
 
 	if (Player.jumpCtrl == true && Player.jumpTime < 2.0f
 		&& !handleLadderCollision()) {
-		Player.vSpeed -= (3.5 - Player.jumpTime);
+		Player.vSpeed -= (3.8 - Player.jumpTime);
 		Player.jumpTime += 0.15f;
 		if (Player.jumpTime >= 2) {
 			Player.jumpCtrl = false;
@@ -344,11 +359,16 @@ void attemptMovement()
 	}
 }
 // tag::updateSimulation[]
+//TODO add score 
+//TODO simulate audio function
+//TODO simulate AI
+//TODO add multiple levels
 void updateSimulation(double simLength = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
 	animTime++;
+	audioTime++;
 	
-
+	
 	if (pause == false) {
 		handleMovement();
 		handleForces();
@@ -359,6 +379,7 @@ void updateSimulation(double simLength = 0.02) //update simulation with an amoun
 		handleAnimation();
 	}
 	updateAnimation();
+	simulateAudio();
 	collisionFrame = false;
 }
 
@@ -414,9 +435,9 @@ void render()
 
 		SDL_RenderCopy(ren, forestTex, &srcBackground, &dstBackground);
 
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < 20; i++) {
 			dstFloor.y = (32 * i);
-			for (int p = 0; p < 12; p++) {
+			for (int p = 0; p < 20; p++) {
 				dstFloor.x = (32 * p);
 				if (level.world[i][p] == 1) {
 					SDL_RenderCopy(ren, floorTex, &srcFloor, &dstFloor);
@@ -434,7 +455,7 @@ void render()
 		//Update the screen
 		SDL_RenderPresent(ren);
 }
-
+//|TODO window resizing
 // based on http://www.willusher.io/sdl2%20tutorials/2013/08/17/lesson-1-hello-world/
 int main( int argc, char* args[] )
 {
@@ -446,8 +467,7 @@ int main( int argc, char* args[] )
 	std::cout << "SDL initialised OK!\n";
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	//create window
-	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 1000, 1000, SDL_WINDOW_SHOWN);
-
+	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 1200, 1200, SDL_WINDOW_SHOWN);
 	//error handling
 	if (win == nullptr)
 	{
@@ -545,7 +565,6 @@ int main( int argc, char* args[] )
 		SDL_Quit();
 		return 1;
 	}
-	SDL_Color White = { 255, 255, 255 };
 
 	int ttfReturn = TTF_Init();
 	if (ttfReturn  == -1)
@@ -553,14 +572,11 @@ int main( int argc, char* args[] )
 		std::cout << "TTF_Init Failed: " << TTF_GetError() << std::endl;
 	}
 	sound.loadSounds();
-	text.initText();
-	text.textSurface = TTF_RenderText_Solid(text.sans, "Paused", White);
-	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 	
 	int fCount = 0;
 	//int lCount = 0;
-	for (int i = 0; i < 12; i++) {
-		for (int p = 0; p < 12; p++) {
+	for (int i = 0; i < 20; i++) {
+		for (int p = 0; p < 20; p++) {
 			if (level.world[i][p] == 1){
 				floorArray[fCount] = Floor(32 * p, 32 * i);
 			}
@@ -570,6 +586,7 @@ int main( int argc, char* args[] )
 			fCount++;
 		}
 	}
+	SDL_RenderSetScale(ren, 1.5, 1.5);
 
 	while (!done) //loop until done flag is set)
 	{
