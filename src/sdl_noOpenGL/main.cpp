@@ -43,12 +43,15 @@ bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
-int animTime = 0;
+float animTime = 0;
 int audioTime = 0;
+float lastTime = 0;
+float currentTime = 0;
+float runTime = 0;
 
 int x;
 //TODO add save function
-// TODO compartmentalise collision for efficiency 
+//TODO compartmentalise collision for efficiency 
 bool handleCollision()
 {
 	//Player.moveDown = true;
@@ -210,7 +213,6 @@ void simulateAnimation()
 		animTime = 0;
 	}
 }
-
 void handleAnimation()
 {
 	if (Player.moveCtrl == false) {
@@ -241,7 +243,6 @@ void handleAnimation()
 		Player.animation = "fall";
 	}
 }
-
 void updateAnimation()
 {
 	if (Player.animation == "walk")
@@ -270,7 +271,6 @@ void updateAnimation()
 		Player.yPlayerSpriteIndex = Player.yPlayerFallSpriteIndex[Player.playerFall];
 	}
 }
-// end::handleInput[]
 void handleForces()
 {
 	if (Player.hSpeed > 0) {
@@ -333,10 +333,9 @@ void handleMovement()
 		Player.hSpeed = -3;
 	}	
 }
-
 void attemptMovement()
 {
-	Player.obj.xPos += Player.hSpeed;
+	Player.obj.xPos += (Player.hSpeed * (runTime));
 	while (handleCollision()) {
 		if (Player.hSpeed > 0) {
 			Player.obj.xPos -= 1;
@@ -363,9 +362,10 @@ void attemptMovement()
 //TODO simulate audio function
 //TODO simulate AI
 //TODO add multiple levels
-void updateSimulation(double simLength = 0.02) //update simulation with an amount of time to simulate for (in seconds)
+void updateSimulation(double smiulationTime = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
-	animTime++;
+	//animTime++;
+	animTime += (runTime);
 	audioTime++;
 	
 	
@@ -477,7 +477,7 @@ int main( int argc, char* args[] )
 	}
 	std::cout << "SDL CreatedWindow OK!\n";
 
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);//| SDL_RENDERER_PRESENTVSYNC);
 	if (ren == nullptr)
 	{
 		SDL_DestroyWindow(win);
@@ -587,7 +587,7 @@ int main( int argc, char* args[] )
 		}
 	}
 	SDL_RenderSetScale(ren, 1.5, 1.5);
-
+	//currentTime = SDL_GetTicks();
 	while (!done) //loop until done flag is set)
 	{
 
@@ -597,7 +597,14 @@ int main( int argc, char* args[] )
 
 		render(); // this should render the world state according to VARIABLES
 
+		
 		SDL_Delay(20); // unless vsync is on??
+		lastTime = currentTime;
+		currentTime = SDL_GetTicks();
+		runTime = (currentTime - lastTime) / 20;
+		cout << runTime << endl;
+		//SDL_Delay(runTime); // unless vsync is on??
+
 	}
 
 
