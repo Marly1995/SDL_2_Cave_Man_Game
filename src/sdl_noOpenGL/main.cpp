@@ -43,11 +43,16 @@ bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
+int width = 800;
+int height = 800;
+
 float animTime = 0;
-int audioTime = 0;
+float audioTime = 0;
 float lastTime = 0;
 float currentTime = 0;
 float runTime = 0;
+float realRunTime = 0;
+float jumpTime = 0;
 
 int x;
 //TODO add save function
@@ -103,6 +108,11 @@ void handleInput()
 							//  - such as window close, or SIGINT
 			break;
 
+		case SDL_WINDOWEVENT:
+			//currentTime = lastTime;
+			currentTime = SDL_GetTicks();
+			cout << "moved window" << endl;
+			break;
 			//keydown handling - we should to the opposite on key-up for direction controls (generally)
 		case SDL_KEYDOWN:
 			//Keydown can fire repeatable if key-repeat is on.
@@ -138,6 +148,7 @@ void handleInput()
 						break;
 					case SDLK_SPACE: Player.jumpCtrl = true;
 						Player.jumpTime = 0;
+						jumpTime = 0;
 						break;
 					case SDLK_p: if (pause == false) { pause = true; }
 								 else { pause = false; }
@@ -292,6 +303,7 @@ void handleForces()
 	}
 	else {
 		Player.vSpeed += 2;
+		Player.moveUp = false;
 	}
 }
 void handleMovement()
@@ -309,12 +321,13 @@ void handleMovement()
 		Player.hSpeed += 3;
 	}
 
-	if (Player.jumpCtrl == true && Player.jumpTime < 2.0f
+	if (Player.jumpCtrl == true && jumpTime < 20.0f
 		&& !handleLadderCollision()) {
 		Player.vSpeed -= (3.8 - Player.jumpTime);
-		Player.jumpTime += 0.15f;
-		if (Player.jumpTime >= 2) {
+		Player.jumpTime += (0.05 * jumpTime);
+		if (jumpTime >= 20) {
 			Player.jumpCtrl = false;
+			jumpTime = 0;
 		}
 	}
 	
@@ -346,7 +359,7 @@ void attemptMovement()
 
 	}
 
-	Player.obj.yPos += Player.vSpeed;
+	Player.obj.yPos += Player.vSpeed * runTime;
 	while (handleCollision()) {
 		if (Player.vSpeed > 0) {
 			Player.obj.yPos -= 1;
@@ -367,6 +380,7 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 	//animTime++;
 	animTime += (runTime);
 	audioTime++;
+	jumpTime += runTime;
 	
 	
 	if (pause == false) {
@@ -387,6 +401,7 @@ void render()
 {
 		//First clear the renderer
 		SDL_RenderClear(ren);
+		SDL_RenderSetLogicalSize(ren, width, height);
 		//Draw the texture
 		SDL_Rect srcPlayer;
 		SDL_Rect dstPlayer;
@@ -424,8 +439,8 @@ void render()
 
 		dstBackground.x = 0;
 		dstBackground.y = 0;
-		dstBackground.w = 800;
-		dstBackground.h = 378;
+		dstBackground.w = 1800;
+		dstBackground.h = 800;
 
 		text.textRect.x = 100;
 		text.textRect.y = 100;
@@ -467,7 +482,7 @@ int main( int argc, char* args[] )
 	std::cout << "SDL initialised OK!\n";
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	//create window
-	win = SDL_CreateWindow("SDL Hello World!", 100, 100, 1200, 1200, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("SDL Hello World!", 100, 100, width, height, SDL_WINDOW_RESIZABLE);
 	//error handling
 	if (win == nullptr)
 	{
@@ -586,7 +601,6 @@ int main( int argc, char* args[] )
 			fCount++;
 		}
 	}
-	SDL_RenderSetScale(ren, 1.5, 1.5);
 	//currentTime = SDL_GetTicks();
 	while (!done) //loop until done flag is set)
 	{
@@ -601,8 +615,9 @@ int main( int argc, char* args[] )
 		SDL_Delay(20); // unless vsync is on??
 		lastTime = currentTime;
 		currentTime = SDL_GetTicks();
+		realRunTime = (currentTime - lastTime);
 		runTime = (currentTime - lastTime) / 20;
-		cout << runTime << endl;
+		//cout << runTime << endl;
 		//SDL_Delay(runTime); // unless vsync is on??
 
 	}

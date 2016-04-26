@@ -40,9 +40,9 @@ void GameObject::findCollision()
 
 void GameObject::findCollisionPlayer()
 {
-	leftSide = xPos + 8;
+	leftSide = xPos + 12;
 	topSide = yPos + 4;
-	rightSide = xPos + width - 8;
+	rightSide = xPos + width - 4;
 	botSide = yPos + height - 4;
 }
 
