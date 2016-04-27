@@ -104,9 +104,10 @@
     <ClInclude Include="src\sdl_noOpenGL\Ladder.h" />
     <ClInclude Include="src\sdl_noOpenGL\Level.h" />
     <ClInclude Include="src\sdl_noOpenGL\Sound.h" />
+    <ClInclude Include="src\sdl_noOpenGL\Sprite.h" />
     <ClInclude Include="src\sdl_noOpenGL\Text.h" />
+    <ClInclude Include="src\sdl_noOpenGL\TextureControl.h" />
     <ClInclude Include="src\sdl_noOpenGL\player.h" />
-    <ClInclude Include="src\sdl_noOpenGL\sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\sdl_noOpenGL\main.cpp" />

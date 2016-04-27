@@ -7,6 +7,7 @@
 #include "Ladder.h"
 #include "Text.h"
 #include "Sound.h"
+#include "TextureControl.h"
 
 #include <iostream>
 #include <vector>
@@ -28,13 +29,15 @@ SDL_Texture *playerTex; //pointer to the SDL_Texture
 SDL_Texture *floorTex;
 SDL_Texture *ladderTex;
 SDL_Texture *forestTex;
+SDL_Texture *pauseTex;
 
 SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 
+TextureControl texCtrl = TextureControl();
 player Player = player();
 Level level = Level();
 Enemy enemy = Enemy();
-Text text = Text("Paused");
+Text text = Text();
 Sound sound = Sound();
 Floor floorArray[400];
 Ladder ladderArray[400];
@@ -43,8 +46,10 @@ bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
-int width = 800;
-int height = 800;
+int width = 640;
+int height = 640;
+int fxVolume = 128;
+int musicVolume = 128;
 
 float animTime = 0;
 float audioTime = 0;
@@ -86,16 +91,6 @@ bool handleLadderCollision()
 // TODO make into inputs calss
 void handleInput()
 {
-	//Event-based input handling
-	//The underlying OS is event-based, so **each** key-up or key-down (for example)
-	//generates an event.
-	//  - https://wiki.libsdl.org/SDL_PollEvent
-	//In some scenarios we want to catch **ALL** the events, not just to present state
-	//  - for instance, if taking keyboard input the user might key-down two keys during a frame
-	//    - we want to catch based, and know the order
-	//  - or the user might key-down and key-up the same within a frame, and we still want something to happen (e.g. jump)
-	//  - the alternative is to Poll the current state with SDL_GetKeyboardState
-
 	SDL_Event event; //somewhere to store an event
 
 	//NOTE: there may be multiple events per frame
@@ -109,7 +104,6 @@ void handleInput()
 			break;
 
 		case SDL_WINDOWEVENT:
-			//currentTime = lastTime;
 			currentTime = SDL_GetTicks();
 			cout << "moved window" << endl;
 			break;
@@ -153,6 +147,25 @@ void handleInput()
 					case SDLK_p: if (pause == false) { pause = true; }
 								 else { pause = false; }
 						break;
+
+						//pause menu
+						if (pause == true) 
+						{
+						case SDLK_r: 
+							break;
+						case SDLK_EQUALS: 
+							musicVolume += 8;
+							break;
+						case SDLK_MINUS:
+							musicVolume -= 8;
+							break;
+						case SDLK_0:
+							fxVolume += 8;
+							break;
+						case SDLK_9:
+							fxVolume -= 8;							
+							break;
+						}
 				}
 			break;
 		case SDL_KEYUP:
@@ -181,10 +194,22 @@ void handleInput()
 	}
 }
 
+void loadSprites()
+{
+	texCtrl.player.loadSprite("assets/sprites/caverman.png", ren);
+	texCtrl.floor.loadSprite("assets/sprites/floor.png", ren);
+	texCtrl.ladder.loadSprite("assets/sprites/ladder.png", ren);
+	texCtrl.background.loadSprite("assets/sprites/forest.png", ren);
+	texCtrl.pauseCover.loadSprite("assets/sprites/pauseCover.png", ren);
+}
+
 // TODO add background music
 // TODO playing animation audio
 void simulateAudio()
 {
+	Mix_VolumeMusic(musicVolume);
+	Mix_VolumeChunk(sound.footstep, fxVolume);
+	Mix_VolumeChunk(sound.footstep2, fxVolume);
 	if (Player.animation == "walk") {
 		if(audioTime == 14){ Mix_PlayChannel(1, sound.footstep, 0); }
 		if (audioTime >= 28){ Mix_PlayChannel(1, sound.footstep2, 0); 
@@ -447,24 +472,26 @@ void render()
 		text.textRect.w = 240;
 		text.textRect.h = 48;
 
-
-		SDL_RenderCopy(ren, forestTex, &srcBackground, &dstBackground);
+		SDL_RenderCopy(ren, texCtrl.background.Tex, &srcBackground, &dstBackground);
 
 		for (int i = 0; i < 20; i++) {
 			dstFloor.y = (32 * i);
 			for (int p = 0; p < 20; p++) {
 				dstFloor.x = (32 * p);
 				if (level.world[i][p] == 1) {
-					SDL_RenderCopy(ren, floorTex, &srcFloor, &dstFloor);
+					SDL_RenderCopy(ren, texCtrl.floor.Tex, &srcFloor, &dstFloor);
 				}
 				if (level.world[i][p] == 2) {
-					SDL_RenderCopy(ren, ladderTex, &srcFloor, &dstFloor);
+					SDL_RenderCopy(ren, texCtrl.ladder.Tex, &srcFloor, &dstFloor);
 				}
 			}
 			dstFloor.x = 0;
 		}
-		SDL_RenderCopyEx(ren, playerTex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
-		if (pause == true){ SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect); }
+		SDL_RenderCopyEx(ren, texCtrl.player.Tex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
+		if (pause == true){ 
+			SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
+			SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+		}
 
 
 		//Update the screen
@@ -501,93 +528,18 @@ int main( int argc, char* args[] )
 		return 1;
 	}
 
-	std::string imagePath = "assets/sprites/caverman.png";
-	surface = IMG_Load(imagePath.c_str());
-	if (surface == nullptr){
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL IMG_Load Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	playerTex = SDL_CreateTextureFromSurface(ren, surface);
-	SDL_FreeSurface(surface);
-	if (playerTex == nullptr){
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	imagePath = "assets/sprites/floor.png";
-	surface = IMG_Load(imagePath.c_str());
-	if (surface == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL IMG_Load Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	floorTex = SDL_CreateTextureFromSurface(ren, surface);
-	SDL_FreeSurface(surface);
-	if (floorTex == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	imagePath = "assets/sprites/ladder.png";
-	surface = IMG_Load(imagePath.c_str());
-	if (surface == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL IMG_Load Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	ladderTex = SDL_CreateTextureFromSurface(ren, surface);
-	SDL_FreeSurface(surface);
-	if (floorTex == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	imagePath = "assets/sprites/forest.png";
-	surface = IMG_Load(imagePath.c_str());
-	if (surface == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL IMG_Load Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	forestTex = SDL_CreateTextureFromSurface(ren, surface);
-	SDL_FreeSurface(surface);
-	if (floorTex == nullptr) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(win);
-		std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
 	int ttfReturn = TTF_Init();
 	if (ttfReturn  == -1)
 	{
 		std::cout << "TTF_Init Failed: " << TTF_GetError() << std::endl;
 	}
 	sound.loadSounds();
-	
+	text.initText();
+	text.textSurface = TTF_RenderText_Solid(text.sans, "paused", text.White);
+	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
+
+	loadSprites();
+
 	int fCount = 0;
 	//int lCount = 0;
 	for (int i = 0; i < 20; i++) {
@@ -596,11 +548,17 @@ int main( int argc, char* args[] )
 				floorArray[fCount] = Floor(32 * p, 32 * i);
 			}
 			if (level.world[i][p] == 2) {
-				ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);
+				ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);			
 			}
 			fCount++;
 		}
 	}
+	Mix_PlayMusic(sound.theme1, -1);
+	
+	//Player.xStartingPosition = level.xStartPos;
+	//Player.yStartingPosition = level.yStartPos;
+	Player.obj.xPos = trunc(level.xStartPos);
+	Player.obj.yPos = trunc(level.yStartPos);
 	//currentTime = SDL_GetTicks();
 	while (!done) //loop until done flag is set)
 	{

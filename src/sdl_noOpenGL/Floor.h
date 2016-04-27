@@ -5,6 +5,7 @@
 #include <string>
 
 #include "GameObject.h"
+#include "sprite.h"
 
 #include <stdlib.h>
 #include <SDL2/SDL.h>
@@ -17,6 +18,7 @@ class Floor
 {
 public:
 	GameObject obj;
+	Sprite spr;
 
 	Floor();
 	Floor(int xPosition, int yPosition);

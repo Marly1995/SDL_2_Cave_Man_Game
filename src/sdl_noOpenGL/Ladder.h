@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <string>
 
+#include "sprite.h"
+#include "GameObject.h"
+
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
@@ -15,6 +18,7 @@ class Ladder
 {
 public:
 	GameObject obj;
+	Sprite spr;
 
 	Ladder();
 	Ladder(int xPosition, int yPosition);

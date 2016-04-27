@@ -14,6 +14,8 @@ using namespace std;
 class Level
 {
 public:
+	float xStartPos = 32;
+	float yStartPos = 576;
 	int world[20][20] = {
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
 		{ 0,0,0,0,0,1,1,2,1,1,0,1,1,1,1,1,1,0,1,1 },

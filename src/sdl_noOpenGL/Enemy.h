@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <string>
 
+#include "sprite.h"
+
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "GameObject.h"
+#include "sprite.h"
 
 #include <stdlib.h>
 #include <SDL2/SDL.h>
@@ -18,6 +19,7 @@ class player
 public:
 
 	GameObject obj;
+	Sprite spr;
 
 	float hSpeed;
 	float vSpeed;
@@ -43,6 +45,8 @@ public:
 	int playerFall = 0;
 	int playerJump = 0;
 	int gravity;
+	int yStartingPosition = 0;
+	int xStartingPosition = 0;
 
 	bool moveDown;
 	bool moveUp;

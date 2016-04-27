@@ -29,21 +29,18 @@ private:
 public:
 	SDL_Texture* textTex;
 	SDL_Surface* textSurface;
-	SDL_Renderer* ren;
 	SDL_Rect textRect;
 	TTF_Font* sans;
 	SDL_Color White = { 255, 255, 255 };
 
 public:
 	void initText();
-	Text(string input);
+	Text();
 };
 
-Text::Text(string input)
+Text::Text()
 {
-	initText();
-	textSurface = TTF_RenderText_Solid(sans, input.c_str(), White);
-	textTex = SDL_CreateTextureFromSurface(ren, textSurface);
+	
 }
 
 void Text::initText()
