@@ -22,4 +22,6 @@ public:
 	Sprite ladder;
 	Sprite background;
 	Sprite pauseCover;
+	Sprite bar;
+	Sprite enemy;
 };

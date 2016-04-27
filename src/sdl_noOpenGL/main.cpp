@@ -35,7 +35,8 @@ SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 
 TextureControl texCtrl = TextureControl();
 player Player = player();
-Level level = Level();
+Level level = Level("assets/sprites/floor.png", "assets/sprites/ladder.png", "assets/sprites/forest.png");
+Level level2 = Level("assets/sprites/icefloor.png", "assets/sprites/ladder.png", "assets/sprites/iceback.png");
 Enemy enemy = Enemy();
 Text text = Text();
 Sound sound = Sound();
@@ -46,6 +47,7 @@ bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
+int currentLevel = 0;
 int width = 640;
 int height = 640;
 int fxVolume = 128;
@@ -194,16 +196,59 @@ void handleInput()
 	}
 }
 
-void loadSprites()
+void generateLevel(Level level)
+{
+	int fCount = 0;
+	if (currentLevel == 0) {
+		for (int i = 0; i < 20; i++) {
+			for (int p = 0; p < 20; p++) {
+				if (level.world[i][p] == 1) {
+					floorArray[fCount] = Floor(32 * p, 32 * i);
+				}
+				if (level.world[i][p] == 2) {
+					ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);
+				}
+				fCount++;
+			}
+		}
+	}
+	if (currentLevel == 1) {
+		for (int i = 0; i < 20; i++) {
+			for (int p = 0; p < 20; p++) {
+				if (level.world2[i][p] == 1) {
+					floorArray[fCount] = Floor(32 * p, 32 * i);
+				}
+				if (level.world2[i][p] == 2) {
+					ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);
+				}
+				fCount++;
+			}
+		}
+	}
+}
+void loadSprites(Level level)
 {
 	texCtrl.player.loadSprite("assets/sprites/caverman.png", ren);
-	texCtrl.floor.loadSprite("assets/sprites/floor.png", ren);
-	texCtrl.ladder.loadSprite("assets/sprites/ladder.png", ren);
-	texCtrl.background.loadSprite("assets/sprites/forest.png", ren);
+	texCtrl.floor.loadSprite(level.floor, ren);
+	texCtrl.ladder.loadSprite(level.ladder, ren);
+	texCtrl.background.loadSprite(level.background, ren);
 	texCtrl.pauseCover.loadSprite("assets/sprites/pauseCover.png", ren);
+	texCtrl.bar.loadSprite("assets/sprites/bars.png", ren);
+	texCtrl.enemy.loadSprite("assets/sprites/trex.png", ren);
 }
-
-// TODO add background music
+void loadLevel()
+{
+	if (currentLevel == 0)
+	{
+		loadSprites(level);
+		generateLevel(level);
+	}
+	if (currentLevel == 1)
+	{
+		loadSprites(level2);
+		generateLevel(level2);
+	}
+}
 // TODO playing animation audio
 void simulateAudio()
 {
@@ -407,6 +452,8 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 	audioTime++;
 	jumpTime += runTime;
 	
+	enemy.enemyMove();
+	enemy.enemyPath();
 	
 	if (pause == false) {
 		handleMovement();
@@ -431,6 +478,13 @@ void render()
 		SDL_Rect srcPlayer;
 		SDL_Rect dstPlayer;
 
+		SDL_Rect srcEnemy;
+		SDL_Rect dstEnemy;
+
+		SDL_Rect srcBar;
+		SDL_Rect dstBar;
+		SDL_Rect dstBar2;
+
 		SDL_Rect srcBackground;
 		SDL_Rect dstBackground;
 
@@ -446,6 +500,16 @@ void render()
 		dstPlayer.y = Player.obj.yPos;
 		dstPlayer.w = 42;
 		dstPlayer.h = 32;
+
+		srcEnemy.x = enemy.xEnemySpriteIndex;
+		srcEnemy.y = enemy.yEnemySpriteIndex;
+		srcEnemy.w = 97;
+		srcEnemy.h = 71;
+
+		dstEnemy.x = enemy.obj.xPos;
+		dstEnemy.y = enemy.obj.yPos;
+		dstEnemy.w = 42;
+		dstEnemy.h = 32;
 
 		srcFloor.x = 0;
 		srcFloor.y = 0;
@@ -472,6 +536,21 @@ void render()
 		text.textRect.w = 240;
 		text.textRect.h = 48;
 
+		srcBar.x = 0;
+		srcBar.y = 0;
+		srcBar.w = 20;
+		srcBar.h = 20;
+
+		dstBar.x = 200;
+		dstBar.y = 240;
+		dstBar.w = fxVolume;
+		dstBar.h = 50;
+
+		dstBar2.x = 200;
+		dstBar2.y = 340;
+		dstBar2.w = musicVolume;
+		dstBar2.h = 50;
+
 		SDL_RenderCopy(ren, texCtrl.background.Tex, &srcBackground, &dstBackground);
 
 		for (int i = 0; i < 20; i++) {
@@ -491,6 +570,8 @@ void render()
 		if (pause == true){ 
 			SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
 			SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+			SDL_RenderCopy(ren, texCtrl.bar.Tex, &srcBar, &dstBar);
+			SDL_RenderCopy(ren, texCtrl.bar.Tex, &srcBar, &dstBar2);
 		}
 
 
@@ -538,21 +619,9 @@ int main( int argc, char* args[] )
 	text.textSurface = TTF_RenderText_Solid(text.sans, "paused", text.White);
 	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 
-	loadSprites();
+	loadLevel();
 
-	int fCount = 0;
-	//int lCount = 0;
-	for (int i = 0; i < 20; i++) {
-		for (int p = 0; p < 20; p++) {
-			if (level.world[i][p] == 1){
-				floorArray[fCount] = Floor(32 * p, 32 * i);
-			}
-			if (level.world[i][p] == 2) {
-				ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);			
-			}
-			fCount++;
-		}
-	}
+	
 	Mix_PlayMusic(sound.theme1, -1);
 	
 	//Player.xStartingPosition = level.xStartPos;

@@ -33,11 +33,11 @@ void Sprite::loadSprite(string path, SDL_Renderer *ren)
 	imagePath = path;
 	surface = IMG_Load(imagePath.c_str());
 	if (surface == nullptr) {
-		printf("Failed to load beat music! SDL_mixer Error: %s\n");
+		printf("image not loadarino %s\n");
 	}
 	Tex = SDL_CreateTextureFromSurface(ren, surface);
 	SDL_FreeSurface(surface);
 	if (Tex == nullptr) {
-		printf("Failed to load beat music! SDL_mixer Error: %s\n");
+		printf("surface is kill %s\n");
 	}
 }
