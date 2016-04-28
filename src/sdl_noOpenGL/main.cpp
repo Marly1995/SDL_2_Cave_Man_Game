@@ -26,12 +26,6 @@
 std::string exeName;
 SDL_Window *win; //pointer to the SDL_Window
 SDL_Renderer *ren; //pointer to the SDL_Renderer
-SDL_Surface *surface; //pointer to the SDL_Surface
-SDL_Texture *playerTex; //pointer to the SDL_Texture
-SDL_Texture *floorTex;
-SDL_Texture *ladderTex;
-SDL_Texture *forestTex;
-SDL_Texture *pauseTex;
 
 SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 
@@ -41,6 +35,7 @@ Level level = Level("assets/sprites/floor.png", "assets/sprites/ladder.png", "as
 Level level2 = Level("assets/sprites/icefloor.png", "assets/sprites/ladder.png", "assets/sprites/iceback.png");
 Level level3 = Level("assets/sprites/floor.png", "assets/sprites/ladder.png", "assets/sprites/forest.png");
 Enemy enemy = Enemy();
+Enemy enemy2 = Enemy();
 GameData gameData = GameData();
 Text text = Text();
 Text score = Text();
@@ -53,8 +48,9 @@ Egg eggArray[20];
 bool done = false;
 bool collisionFrame = false;
 bool pause = false;
+bool fullscreen = false;
 
-int currentLevel = 2;
+int currentLevel = 0;
 int width = 640;
 int height = 900;
 int fxVolume = 128;
@@ -76,6 +72,22 @@ void updateText()
 	score.updateText();
 	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
 	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
+	
+}
+void createText()
+{
+	text.textSurface = TTF_RenderText_Solid(text.sans, "paused", text.White);
+	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
+	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
+	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
+}
+void Loading()
+{
+
+}
+void startMenu()
+{
+
 }
 bool handleCollision()
 {
@@ -119,17 +131,17 @@ void generateLevel(Level level)
 		for (int i = 0; i < 24; i++) {
 			for (int p = 0; p < 20; p++) {
 				if (level.world[i][p] == 1) {
-					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 96);
 					floorArray[fCount].obj.definePosition();
 					fCount++;
 				}
 				if (level.world[i][p] == 2) {
-					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 96);
 					ladderArray[lCount].obj.definePosition();
 					lCount++;
 				}
 				if (level.world[i][p] == 3) {
-					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 96);
 					eggArray[eggCount].obj.definePosition();
 					eggCount++;
 				}
@@ -143,17 +155,17 @@ void generateLevel(Level level)
 		for (int i = 0; i < 24; i++) {
 			for (int p = 0; p < 20; p++) {
 				if (level.world2[i][p] == 1) {
-					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 96);
 					floorArray[fCount].obj.definePosition();
 					fCount++;
 				}
 				if (level.world2[i][p] == 2) {
-					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 96);
 					ladderArray[lCount].obj.definePosition();
 					lCount++;
 				}
 				if (level.world2[i][p] == 3) {
-					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 96);
 					eggArray[eggCount].obj.definePosition();
 					eggCount++;
 				}
@@ -164,17 +176,17 @@ void generateLevel(Level level)
 		for (int i = 0; i < 24; i++) {
 			for (int p = 0; p < 20; p++) {
 				if (level.world3[i][p] == 1) {
-					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 96);
 					floorArray[fCount].obj.definePosition();
 					fCount++;
 				}
 				if (level.world3[i][p] == 2) {
-					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 96);
 					ladderArray[lCount].obj.definePosition();
 					lCount++;
 				}
 				if (level.world3[i][p] == 3) {
-					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 96);
 					eggArray[eggCount].obj.definePosition();
 					eggCount++;
 				}
@@ -199,7 +211,10 @@ void loadSprites(Level level)
 void loadLevel()
 {
 	enemy.obj.xPos = 172;
-	enemy.obj.yPos = 0;
+	enemy.obj.yPos = 224;
+
+	enemy2.obj.xPos = 64;
+	enemy2.obj.yPos = 480;
 
 	if (currentLevel == 0)
 	{
@@ -232,6 +247,7 @@ bool handleEggCollision()
 			if (gameData.eggCount >= 10) {
 				currentLevel++;
 				loadLevel();
+				gameData.eggCount = 0;
 			}
 			Mix_PlayChannel(2, sound.eat, 0);
 			gameData.convertScore();
@@ -242,7 +258,6 @@ bool handleEggCollision()
 	return false;
 
 }
-
 bool handleLadderCollision()
 {
 	//Player.moveDown = true;
@@ -255,7 +270,6 @@ bool handleLadderCollision()
 	return false;
 
 }
-
 // TODO make into inputs calss
 void handleInput()
 {
@@ -309,7 +323,8 @@ void handleInput()
 					Player.moveCtrl = true;
 					break;
 					
-				case SDLK_SPACE: if (Player.jumpCtrl == false) {
+				case SDLK_SPACE: if (Player.jumpCtrl == false
+					&& !handleLadderCollision()) {
 					Player.jumpCtrl = true;
 					Player.jumpTime = 0;
 					jumpTime = 0;
@@ -321,23 +336,42 @@ void handleInput()
 						break;
 
 						//pause menu
-						if (pause == true) 
+						
+					case SDLK_f: if (pause == true)
+					{
+						if (fullscreen == false)
 						{
-						case SDLK_r:
-							break;
-						case SDLK_EQUALS: 
-							musicVolume += 8;
-							break;
-						case SDLK_MINUS:
-							musicVolume -= 8;
-							break;
-						case SDLK_0:
-							fxVolume += 8;
-							break;
-						case SDLK_9:
-							fxVolume -= 8;							
-							break;
+							SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+							fullscreen = true;
 						}
+						else {
+							SDL_SetWindowFullscreen(win, 0);
+							fullscreen = false;
+						}
+					}
+							
+							break;
+					case SDLK_EQUALS: if (pause == true)
+					{
+						musicVolume += 8;
+					}
+							break;
+						case SDLK_MINUS:if (pause == true)
+						{
+							musicVolume -= 8;
+						}
+							break;
+						case SDLK_0:if (pause == true)
+						{
+							fxVolume += 8;
+						}
+							break;
+						case SDLK_9:if (pause == true)
+						{
+							fxVolume -= 8;
+						}
+							break;
+						
 				}
 			break;
 		case SDL_KEYUP:
@@ -376,7 +410,7 @@ void simulateAudio()
 	else { Mix_ResumeMusic(); }
 	if (Player.animation == "walk") {
 		if(audioTime == 14){ Mix_PlayChannel(1, sound.footstep, 0); }
-		if (audioTime >= 28){ Mix_PlayChannel(1, sound.footstep2, 0); 
+		if (audioTime >= 28){ Mix_PlayChannel(3, sound.footstep2, 0); 
 		audioTime = 0;
 		}
 		
@@ -411,12 +445,16 @@ void simulateAnimation()
 		}
 
 		enemy.climb += 1;
+		enemy2.climb += 1;
 		if (enemy.climb > 1) {
 			enemy.climb = 0;
+			enemy2.climb = 0;
 		}
 		enemy.walk += 1;
+		enemy2.walk += 1;
 		if (enemy.walk > 6) {
 			enemy.walk = 0;
+			enemy2.walk = 0;
 		}
 		animTime = 0;
 	}
@@ -518,10 +556,13 @@ void handleMovement()
 		Player.hSpeed += 3;
 	}
 
-	if (jumpTime < 20.0f
+	if (jumpTime < 10.0f
 		&& !handleLadderCollision()) {
 		Player.vSpeed -= (3.8 - Player.jumpTime);
 		Player.jumpTime += (0.05 * jumpTime);
+	}
+	else {
+	Player.jumpTime = 0;
 	}
 	
 
@@ -559,14 +600,13 @@ void attemptMovement()
 	while (handleCollision()) {
 		if (Player.vSpeed > 0) {
 			Player.obj.yPos -= 1;
-			//if (jumpTime > 19) {
-				Player.jumpCtrl = false;
-				jumpTime = 0;
-			//}
+			Player.jumpCtrl = false;
+				Player.jumpTime = 0;
 		}
 		if (Player.vSpeed < 0) {
 			Player.obj.yPos += 1;
 		}
+		
 		collisionFrame = true;
 	}
 }
@@ -599,8 +639,10 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 	audioTime += runTime;
 	jumpTime += runTime;
 	
-	enemy.enemyMove();
+	enemy.enemyMove(runTime);
 	enemy.enemyPath();
+	enemy2.enemyMove1(runTime);
+	enemy2.enemyPath1();
 	
 	if (pause == false) {
 		handleMovement();
@@ -616,7 +658,6 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 	simulateAudio();
 	collisionFrame = false;
 }
-
 void render()
 {
 		//First clear the renderer
@@ -628,6 +669,9 @@ void render()
 
 		SDL_Rect srcEnemy;
 		SDL_Rect dstEnemy;
+
+		SDL_Rect srcEnemy2;
+		SDL_Rect dstEnemy2;
 
 		SDL_Rect srcEgg;
 		SDL_Rect dstScore;
@@ -671,6 +715,16 @@ void render()
 		dstEnemy.y = enemy.obj.yPos;
 		dstEnemy.w = 42;
 		dstEnemy.h = 32;
+
+		srcEnemy2.x = enemy2.xEnemySpriteIndex;
+		srcEnemy2.y = enemy2.yEnemySpriteIndex;
+		srcEnemy2.w = 80;
+		srcEnemy2.h = 62;
+
+		dstEnemy2.x = enemy2.obj.xPos;
+		dstEnemy2.y = enemy2.obj.yPos;
+		dstEnemy2.w = 42;
+		dstEnemy2.h = 32;
 
 		srcFloor.x = 0;
 		srcFloor.y = 0;
@@ -725,6 +779,7 @@ void render()
 		}
 		SDL_RenderCopyEx(ren, texCtrl.player.Tex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
 		SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy, &dstEnemy, 0, NULL, enemy.flip);
+		SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy2, &dstEnemy2, 0, NULL, enemy2.flip);
 		if (pause == true){ 
 			SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
 			SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
@@ -760,7 +815,7 @@ int main( int argc, char* args[] )
 	}
 	std::cout << "SDL CreatedWindow OK!\n";
 
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);//| SDL_RENDERER_PRESENTVSYNC);
+	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (ren == nullptr)
 	{
 		SDL_DestroyWindow(win);
@@ -777,10 +832,6 @@ int main( int argc, char* args[] )
 	sound.loadSounds();
 	text.initText();
 	score.initText();
-	text.textSurface = TTF_RenderText_Solid(text.sans, "paused", text.White);
-	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
-	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
-	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
 
 	loadLevel();
 
@@ -789,7 +840,6 @@ int main( int argc, char* args[] )
 
 	Player.obj.xPos = trunc(level.xStartPos);
 	Player.obj.yPos = trunc(level.yStartPos);
-	//currentTime = SDL_GetTicks();
 	while (!done) //loop until done flag is set)
 	{
 
@@ -800,18 +850,15 @@ int main( int argc, char* args[] )
 		render(); // this should render the world state according to VARIABLES
 
 		
-		SDL_Delay(20); // unless vsync is on??
+		//SDL_Delay(20); // unless vsync is on??
 		lastTime = currentTime;
 		currentTime = SDL_GetTicks();
 		realRunTime = (currentTime - lastTime);
 		runTime = (currentTime - lastTime) / 20;
 		//cout << runTime << endl;
-		//SDL_Delay(runTime); // unless vsync is on??
 
 	}
 
-
-	SDL_DestroyTexture(playerTex);
 	SDL_DestroyRenderer(ren);
 	SDL_DestroyWindow(win);
 	SDL_Quit();

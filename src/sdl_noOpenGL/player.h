@@ -62,8 +62,8 @@ public:
 	int yPlayerIdleSpriteIndex[6] = { 0, 0, 0, 0, 0, 0 };
 	int xPlayerWalkSpriteIndex[8] = { 0, 97, 194, 291, 388, 485, 0, 97 };
 	int yPlayerWalkSpriteIndex[8] = { 73, 73, 73, 73, 73, 73, 146, 146 };
-	int xPlayerClimbSpriteIndex[4] = { 0, 97, 194, 291 };
-	int yPlayerClimbSpriteIndex[4] = { 438, 438, 438, 438 };
+	int xPlayerClimbSpriteIndex[8] = { 0, 97, 194, 291 };
+	int yPlayerClimbSpriteIndex[8] = { 438, 438, 438, 438, 438, 438, 438, 438 };
 	int xPlayerJumpSpriteIndex[3] = { 194, 291, 388 };
 	int yPlayerJumpSpriteIndex[3] = { 146, 146, 146 };
 	int xPlayerFallSpriteIndex[3] = { 485, 0, 97 };

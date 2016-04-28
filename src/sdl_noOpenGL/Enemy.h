@@ -39,51 +39,51 @@ public:
 	int xEnemyClimbSpriteIndex[2] = { 160, 240 };
 	int yEnemyClimbSpriteIndex[2] = { 124, 124 };
 
-	void enemyMove();
+	void enemyMove(float runTime);
 	void enemyPath();
 
-	void enemyMove1();
+	void enemyMove1(float runTime);
 	void enemyPath1();
 };
 
-void Enemy::enemyMove()
+void Enemy::enemyMove(float runTime)
 {
 	if (pathStage == 0)
 	{
-		obj.xPos += 2;
+		obj.xPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_NONE;
 	}
 	if (pathStage == 1)
 	{
-		obj.yPos += 2;
+		obj.yPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
 		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
 	}
 	if (pathStage == 2)
 	{
-		obj.xPos -= 2;
+		obj.xPos -= 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_HORIZONTAL;
 	}
 	if (pathStage == 3)
 	{
-		obj.xPos += 2;
+		obj.xPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_NONE;
 	}
 	if (pathStage == 4)
 	{
-		obj.yPos -= 2;
+		obj.yPos -= 2 * runTime;
 		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
 		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
 	}
 	if (pathStage == 5)
 	{
-		obj.xPos -= 2;
+		obj.xPos -= 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_HORIZONTAL;
@@ -98,7 +98,7 @@ void Enemy::enemyPath()
 		pathStage = 1;
 	}
 	if (pathStage == 1 &&
-		obj.yPos >= 128)
+		obj.yPos >= 352)
 	{
 		pathStage = 2;
 	}
@@ -113,7 +113,7 @@ void Enemy::enemyPath()
 		pathStage = 4;
 	}
 	if (pathStage == 4 &&
-		obj.yPos <= 0)
+		obj.yPos <= 224)
 	{
 		pathStage = 5;
 	}
@@ -124,79 +124,121 @@ void Enemy::enemyPath()
 	}
 }
 
-void Enemy::enemyMove1()
+void Enemy::enemyMove1(float runTime)
 {
 	if (pathStage == 0)
 	{
-		obj.xPos += 2;
+		obj.xPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_NONE;
 	}
 	if (pathStage == 1)
 	{
-		obj.yPos += 2;
+		obj.yPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
 		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
 	}
 	if (pathStage == 2)
 	{
-		obj.xPos -= 2;
-		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
-		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
-		flip = SDL_FLIP_HORIZONTAL;
-	}
-	if (pathStage == 3)
-	{
-		obj.xPos += 2;
+		obj.xPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_NONE;
 	}
-	if (pathStage == 4)
+	if (pathStage == 3)
 	{
-		obj.yPos -= 2;
+		obj.yPos += 2 * runTime;
 		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
 		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
+		flip = SDL_FLIP_NONE;
 	}
-	if (pathStage == 5)
+	if (pathStage == 4)
 	{
-		obj.xPos -= 2;
+		obj.xPos -= 2 * runTime;
 		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
 		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
 		flip = SDL_FLIP_HORIZONTAL;
+	}
+	if (pathStage == 5)
+	{
+		obj.xPos += 2 * runTime;
+		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
+		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
+		flip = SDL_FLIP_NONE;
+	}
+	if (pathStage == 6)
+	{
+		obj.yPos -= 2 * runTime;
+		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
+		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
+		flip = SDL_FLIP_NONE;
+	}
+	if (pathStage == 7)
+	{
+		obj.xPos -= 2 * runTime;
+		xEnemySpriteIndex = xEnemyWalkSpriteIndex[walk];
+		yEnemySpriteIndex = yEnemyWalkSpriteIndex[walk];
+		flip = SDL_FLIP_HORIZONTAL;
+	}
+	if (pathStage == 8)
+	{
+		obj.yPos -= 2 * runTime;
+		xEnemySpriteIndex = xEnemyClimbSpriteIndex[climb];
+		yEnemySpriteIndex = yEnemyClimbSpriteIndex[climb];
+		flip = SDL_FLIP_NONE;
 	}
 }
 
 void Enemy::enemyPath1()
 {
 	if (pathStage == 0 &&
-		obj.xPos >= 224)
+		obj.xPos >= 96)
 	{
 		pathStage = 1;
 	}
 	if (pathStage == 1 &&
-		obj.yPos >= 128)
+		obj.yPos >= 640)
 	{
 		pathStage = 2;
 	}
 	if (pathStage == 2 &&
-		obj.xPos <= 96)
+		obj.xPos >= 512)
 	{
 		pathStage = 3;
 	}
 	if (pathStage == 3 &&
-		obj.xPos >= 224)
+		obj.yPos >= 800)
 	{
 		pathStage = 4;
 	}
 	if (pathStage == 4 &&
-		obj.yPos <= 0)
+		obj.xPos <= 384)
 	{
 		pathStage = 5;
 	}
 	if (pathStage == 5 &&
-		obj.xPos <= 160)
+		obj.xPos >= 512)
+	{
+		pathStage = 6;
+	}
+	if (pathStage == 6 &&
+		obj.yPos <= 640)
+	{
+		pathStage = 7;
+	}
+	if (pathStage == 7 &&
+		obj.xPos <= 96)
+	{
+		pathStage = 8;
+	}
+	if (pathStage == 8 &&
+		obj.yPos <= 480)
+	{
+		pathStage = 9;
+	}
+	if (pathStage == 9 &&
+		obj.xPos <= 96)
 	{
 		pathStage = 0;
 	}
