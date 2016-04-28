@@ -406,11 +406,12 @@ void simulateAudio()
 	Mix_VolumeChunk(sound.footstep, fxVolume);
 	Mix_VolumeChunk(sound.footstep2, fxVolume);
 	//if (handleEggCollision){ Mix_PlayChannel(1, sound.eat, 0); }
+	Mix_SetPanning(2, 255 - (Player.obj.xPos / 4), (Player.obj.xPos / 4));
 	if (pause == true){ Mix_PauseMusic(); }
 	else { Mix_ResumeMusic(); }
 	if (Player.animation == "walk") {
 		if(audioTime == 14){ Mix_PlayChannel(1, sound.footstep, 0); }
-		if (audioTime >= 28){ Mix_PlayChannel(3, sound.footstep2, 0); 
+		if (audioTime >= 28){ Mix_PlayChannel(1, sound.footstep2, 0); 
 		audioTime = 0;
 		}
 		
