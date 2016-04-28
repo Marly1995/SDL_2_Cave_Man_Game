@@ -26,4 +26,5 @@ public:
 	Sprite enemy;
 	Sprite egg;
 	Sprite menu;
+	Sprite load;
 };

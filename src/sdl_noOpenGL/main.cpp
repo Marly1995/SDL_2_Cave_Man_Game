@@ -39,6 +39,11 @@ Enemy enemy2 = Enemy();
 GameData gameData = GameData();
 Text text = Text();
 Text score = Text();
+Text scoreText = Text();
+Text fx = Text();
+Text music = Text();
+Text restart = Text();
+Text play = Text();
 Sound sound = Sound();
 Floor floorArray[400];
 Ladder ladderArray[400];
@@ -50,6 +55,9 @@ bool menu = true;
 bool collisionFrame = false;
 bool pause = false;
 bool fullscreen = false;
+//bool loading = false;
+
+//int loadingTime = 0;
 
 int currentLevel = 0;
 int width = 640;
@@ -81,25 +89,18 @@ void createText()
 	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
 	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
 	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
+	scoreText.textSurface = TTF_RenderText_Solid(score.sans, "score: ", score.White);
+	scoreText.textTex = SDL_CreateTextureFromSurface(ren, scoreText.textSurface);
+	fx.textSurface = TTF_RenderText_Solid(score.sans, "sfx Volume", score.White);
+	fx.textTex = SDL_CreateTextureFromSurface(ren, fx.textSurface);
+	music.textSurface = TTF_RenderText_Solid(score.sans, "music Volume", score.White);
+	music.textTex = SDL_CreateTextureFromSurface(ren, music.textSurface);
+	play.textSurface = TTF_RenderText_Solid(score.sans, "start game (t)", score.White);
+	play.textTex = SDL_CreateTextureFromSurface(ren, play.textSurface);
+	restart.textSurface = TTF_RenderText_Solid(score.sans, "restart game (r)", score.White);
+	restart.textTex = SDL_CreateTextureFromSurface(ren, restart.textSurface);
 }
-void Loading()
-{
-	
-}
-void startMenu()
-{
-	SDL_RenderClear(ren);
-	SDL_RenderSetLogicalSize(ren, width, height);
-	
-	SDL_Rect menu;
 
-	menu.x = 0;
-	menu.y = 0;
-	menu.w = 640;
-	menu.h = 900;
-	SDL_RenderCopy(ren, texCtrl.menu.Tex, &menu, &menu);
-	SDL_RenderPresent(ren);
-}
 bool handleCollision()
 {
 	//Player.moveDown = true;
@@ -219,14 +220,18 @@ void loadSprites(Level level)
 	texCtrl.enemy.loadSprite("assets/sprites/trex.png", ren);
 	texCtrl.egg.loadSprite("assets/sprites/egg.png", ren);
 	texCtrl.menu.loadSprite("assets/sprites/menu.png", ren);
+	texCtrl.load.loadSprite("assets/sprites/LOAD.png", ren);
 }
 void loadLevel()
 {
-	enemy.obj.xPos = 172;
+	enemy.obj.xPos = 160;
 	enemy.obj.yPos = 224;
 
-	enemy2.obj.xPos = 64;
+	enemy2.obj.xPos = 96;
 	enemy2.obj.yPos = 480;
+
+	Player.obj.xPos = trunc(level.xStartPos);
+	Player.obj.yPos = trunc(level.yStartPos);
 
 	if (currentLevel == 0)
 	{
@@ -244,6 +249,8 @@ void loadLevel()
 		resetLevel();
 		loadSprites(level3);
 		generateLevel(level3);
+		enemy.obj.nullify();
+		enemy2.obj.nullify();
 	}
 }
 bool handleEggCollision()
@@ -313,6 +320,7 @@ void handleInput()
 				{
 					//Player.hitCtrl escape to exit
 				case SDLK_ESCAPE: done = true;
+					menu = false;
 					break;
 				case SDLK_w: if (handleLadderCollision()) {
 					Player.moveUp = true;
@@ -363,11 +371,29 @@ void handleInput()
 					}
 							
 							break;
+					case SDLK_t: if (pause == true)
+					{
+						//loading = true;
+						menu = false;
+						pause = false;
+						loadLevel();
+					}
+									  break;
 					case SDLK_EQUALS: if (pause == true)
 					{
 						musicVolume += 8;
 					}
 							break;
+					case SDLK_r: if (pause == true)
+					{
+						//loadingTime = 0;
+						//loading = true;
+						currentLevel = 0;
+						gameData.currentScore = 0;
+						pause = false;
+						loadLevel();
+					}
+									  break;
 						case SDLK_MINUS:if (pause == true)
 						{
 							musicVolume -= 8;
@@ -555,7 +581,7 @@ void handleForces()
 	}
 }
 void handleMovement()
-{	
+{
 	if (Player.moveUp == true) {
 		Player.vSpeed -= 2;
 	}
@@ -575,9 +601,9 @@ void handleMovement()
 		Player.jumpTime += (0.05 * jumpTime);
 	}
 	else {
-	Player.jumpTime = 0;
+		Player.jumpTime = 0;
 	}
-	
+
 
 	if (Player.vSpeed >= 2) {
 		Player.vSpeed = 2;
@@ -595,7 +621,7 @@ void handleMovement()
 	}
 	if (Player.hSpeed <= -3) {
 		Player.hSpeed = -3;
-	}	
+	}
 }
 void attemptMovement()
 {
@@ -614,18 +640,18 @@ void attemptMovement()
 		if (Player.vSpeed > 0) {
 			Player.obj.yPos -= 1;
 			Player.jumpCtrl = false;
-				Player.jumpTime = 0;
+			Player.jumpTime = 0;
 		}
 		if (Player.vSpeed < 0) {
 			Player.obj.yPos += 1;
 		}
-		
+
 		collisionFrame = true;
 	}
 }
 void objectInteraction()
 {
-	
+
 }
 // tag::updateSimulation[]
 //TODO add score 
@@ -644,20 +670,33 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 			Player.obj.yPos -= 1;
 		}
 	}
+
+	if (Player.obj.collisionCheck(enemy.obj) == true){
+		currentLevel = 0;
+		gameData.currentScore = 0;
+		pause = false;
+		loadLevel();
+	}
+	if (Player.obj.collisionCheck(enemy2.obj) == true) {
+		currentLevel = 0;
+		gameData.currentScore = 0;
+		pause = false;
+		loadLevel();
+	}
 	
 	//animTime++;
 	Player.jumpCtrl = true;
-	cout << Player.jumpCtrl << endl;
 	animTime += (runTime);
 	audioTime += runTime;
 	jumpTime += runTime;
 	
-	enemy.enemyMove(runTime);
-	enemy.enemyPath();
-	enemy2.enemyMove1(runTime);
-	enemy2.enemyPath1();
+	
 	
 	if (pause == false) {
+		enemy.enemyMove(runTime);
+		enemy.enemyPath();
+		enemy2.enemyMove1(runTime);
+		enemy2.enemyPath1();
 		handleMovement();
 		handleForces();
 		attemptMovement();
@@ -699,10 +738,15 @@ void render()
 		SDL_Rect srcFloor;
 		SDL_Rect dstFloor;
 
-		dstScore.x = 50;
+		dstScore.x = 264;
 		dstScore.y = 20;
 		dstScore.w = gameData.scoreWidth;
 		dstScore.h = 32;
+
+		scoreText.textRect.x = 100;
+		scoreText.textRect.y = 20;
+		scoreText.textRect.w = 192;
+		scoreText.textRect.h = 32;
 
 		srcEgg.x = 0;
 		srcEgg.y = 0;
@@ -769,43 +813,93 @@ void render()
 		srcBar.w = 20;
 		srcBar.h = 20;
 
-		dstBar.x = 200;
-		dstBar.y = 240;
-		dstBar.w = fxVolume;
-		dstBar.h = 50;
+		fx.textRect.x = 200;
+		fx.textRect.y = 600;
+		fx.textRect.w = 192;
+		fx.textRect.h = 32;
 
-		dstBar2.x = 200;
-		dstBar2.y = 340;
+		dstBar2.x = 240;
+		dstBar2.y = 750;
 		dstBar2.w = musicVolume;
-		dstBar2.h = 50;
+		dstBar2.h = 32;
 
-		SDL_RenderCopy(ren, texCtrl.background.Tex, &srcBackground, &dstBackground);
+		dstBar.x = 240;
+		dstBar.y = 650;
+		dstBar.w = fxVolume;
+		dstBar.h = 32;
 
-		for (int i = 0; i < 400; i++)
-		{			
-			SDL_RenderCopy(ren, texCtrl.floor.Tex, &srcFloor, &floorArray[i].obj.rect);
-			SDL_RenderCopy(ren, texCtrl.ladder.Tex, &srcFloor, &ladderArray[i].obj.rect);
+		music.textRect.x = 200;
+		music.textRect.y = 700;
+		music.textRect.w = 192;
+		music.textRect.h = 32;
+
+		play.textRect.x = 200;
+		play.textRect.y = 500;
+		play.textRect.w = 192;
+		play.textRect.h = 32;
+
+		restart.textRect.x = 200;
+		restart.textRect.y = 550;
+		restart.textRect.w = 192;
+		restart.textRect.h = 32;
+
+		SDL_Rect dstMenu;
+
+		dstMenu.x = 0;
+		dstMenu.y = 0;
+		dstMenu.w = 640;
+		dstMenu.h = 900;
+		
+		if (menu == false) {
+			SDL_RenderCopy(ren, texCtrl.background.Tex, &srcBackground, &dstBackground);
+			for (int i = 0; i < 400; i++)
+			{
+				SDL_RenderCopy(ren, texCtrl.floor.Tex, &srcFloor, &floorArray[i].obj.rect);
+				SDL_RenderCopy(ren, texCtrl.ladder.Tex, &srcFloor, &ladderArray[i].obj.rect);
+			}
+			for (int i = 0; i < 10; i++)
+			{
+				SDL_RenderCopy(ren, texCtrl.egg.Tex, &srcEgg, &eggArray[i].obj.rect);
+			}
+			SDL_RenderCopyEx(ren, texCtrl.player.Tex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
+			SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy, &dstEnemy, 0, NULL, enemy.flip);
+			SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy2, &dstEnemy2, 0, NULL, enemy2.flip);
+			SDL_RenderCopy(ren, score.textTex, NULL, &dstScore);
+			SDL_RenderCopy(ren, scoreText.textTex, NULL, &scoreText.textRect);
 		}
-		for (int i = 0; i < 10; i++)
-		{
-			SDL_RenderCopy(ren, texCtrl.egg.Tex, &srcEgg, &eggArray[i].obj.rect);
+		if (menu == true) {
+			SDL_RenderCopy(ren, texCtrl.menu.Tex, &dstMenu, &dstMenu);
+			SDL_RenderCopy(ren, play.textTex, NULL, &play.textRect);
 		}
-		SDL_RenderCopyEx(ren, texCtrl.player.Tex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
-		SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy, &dstEnemy, 0, NULL, enemy.flip);
-		SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy2, &dstEnemy2, 0, NULL, enemy2.flip);
 		if (pause == true){ 
-			SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
-			SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+			if (menu == false) {
+				SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
+				SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
+				SDL_RenderCopy(ren, restart.textTex, NULL, &restart.textRect);
+			}
+			SDL_RenderCopy(ren, fx.textTex, NULL, &fx.textRect);
+			SDL_RenderCopy(ren, music.textTex, NULL, &music.textRect);			
 			SDL_RenderCopy(ren, texCtrl.bar.Tex, &srcBar, &dstBar);
 			SDL_RenderCopy(ren, texCtrl.bar.Tex, &srcBar, &dstBar2);
 		}
 
-		SDL_RenderCopy(ren, score.textTex, NULL, &dstScore);
+		//if (loading == true) {
+		//	SDL_RenderCopy(ren, texCtrl.load.Tex, &dstMenu, &dstMenu);
+		//}
 
 		//Update the screen
 		SDL_RenderPresent(ren);
 }
-//|TODO window resizing
+void startMenu()
+{
+	pause = true;
+	handleInput();
+	render();
+	cout << pause << endl;
+	updateSimulation();
+		
+}
+//TODO window resizing
 // based on http://www.willusher.io/sdl2%20tutorials/2013/08/17/lesson-1-hello-world/
 int main( int argc, char* args[] )
 {	
@@ -817,7 +911,7 @@ int main( int argc, char* args[] )
 	std::cout << "SDL initialised OK!\n";
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	//create window
-	win = SDL_CreateWindow("SDL Hello World!", 100, 100, width, height, SDL_WINDOW_RESIZABLE);
+	win = SDL_CreateWindow("SDL Hello World!", 400, 100, width, height, SDL_WINDOW_RESIZABLE);
 	//error handling
 	if (win == nullptr)
 	{
@@ -854,15 +948,21 @@ int main( int argc, char* args[] )
 
 	while (menu)
 	{
-		handleInput();
 		startMenu();
 	}
-
-	Player.obj.xPos = trunc(level.xStartPos);
-	Player.obj.yPos = trunc(level.yStartPos);
 	while (!done) //loop until done flag is set)
 	{
-
+	//	while (loading)
+		//{
+			//pause = true;
+		//	loadingTime += 1;
+			//render();
+			//if (loadingTime == 50)
+			//{
+			//	loading = false;
+			//	pause = false;
+			//}
+	//	}
 		handleInput(); // this should ONLY SET VARIABLES
 
 		updateSimulation(); // this should ONLY SET VARIABLES according to simulation

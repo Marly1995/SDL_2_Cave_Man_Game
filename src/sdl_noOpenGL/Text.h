@@ -46,7 +46,7 @@ Text::Text()
 
 void Text::initText()
 {
-	sans = TTF_OpenFont("assets/Hack-Regular.ttf", 96);
+	sans = TTF_OpenFont("assets/Hack-Regular.ttf", 48);
 	//assert(sans != nullptr);
 	if (sans == nullptr)
 	{
