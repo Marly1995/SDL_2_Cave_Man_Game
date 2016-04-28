@@ -25,4 +25,5 @@ public:
 	Sprite bar;
 	Sprite enemy;
 	Sprite egg;
+	Sprite menu;
 };

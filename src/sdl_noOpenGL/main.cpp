@@ -46,6 +46,7 @@ Egg eggArray[20];
 
 
 bool done = false;
+bool menu = true;
 bool collisionFrame = false;
 bool pause = false;
 bool fullscreen = false;
@@ -83,11 +84,21 @@ void createText()
 }
 void Loading()
 {
-
+	
 }
 void startMenu()
 {
+	SDL_RenderClear(ren);
+	SDL_RenderSetLogicalSize(ren, width, height);
+	
+	SDL_Rect menu;
 
+	menu.x = 0;
+	menu.y = 0;
+	menu.w = 640;
+	menu.h = 900;
+	SDL_RenderCopy(ren, texCtrl.menu.Tex, &menu, &menu);
+	SDL_RenderPresent(ren);
 }
 bool handleCollision()
 {
@@ -207,6 +218,7 @@ void loadSprites(Level level)
 	texCtrl.bar.loadSprite("assets/sprites/bars.png", ren);
 	texCtrl.enemy.loadSprite("assets/sprites/trex.png", ren);
 	texCtrl.egg.loadSprite("assets/sprites/egg.png", ren);
+	texCtrl.menu.loadSprite("assets/sprites/menu.png", ren);
 }
 void loadLevel()
 {
@@ -796,8 +808,7 @@ void render()
 //|TODO window resizing
 // based on http://www.willusher.io/sdl2%20tutorials/2013/08/17/lesson-1-hello-world/
 int main( int argc, char* args[] )
-{
-	gameData.convertScore();
+{	
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -835,9 +846,17 @@ int main( int argc, char* args[] )
 	score.initText();
 
 	loadLevel();
+	gameData.convertScore();
+	createText();
 
 	
 	Mix_PlayMusic(sound.theme1, -1);
+
+	while (menu)
+	{
+		handleInput();
+		startMenu();
+	}
 
 	Player.obj.xPos = trunc(level.xStartPos);
 	Player.obj.yPos = trunc(level.yStartPos);
