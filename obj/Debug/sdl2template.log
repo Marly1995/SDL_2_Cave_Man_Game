@@ -1,16 +1,18 @@
-﻿Build started 27/04/2016 21:11:06.
+﻿Build started 28/04/2016 06:36:16.
      1>Project "C:\Users\Computing\Source\Repos\GameProgramming\sdl2template.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Igraphics_dependencies\SDL2\include /Igraphics_dependencies\SDL2\include\SDL2 /Igraphics_dependencies\glew\include /Igraphics_dependencies\glm /Igraphics_dependencies\SDL2_image\include /Igraphics_dependencies\SDL2_ttf\include /Igraphics_dependencies\SDL2_mixer\include /ZI /nologo /W3 /WX- /Od /Oy- /D DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"obj\Debug\\" /Fd"bin\sdl2template-debug.pdb" /Gd /TP /analyze- /errorReport:prompt  src\sdl_noOpenGL\main.cpp
          main.cpp
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(35): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(36): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(38): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(41): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(42): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(43): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(45): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(46): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(49): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(50): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(51): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(52): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(101): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\gameobject.h(102): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\sprite.h(36): warning C4473: 'printf' : not enough arguments passed for format string
          c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\sprite.h(36): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
          c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\sprite.h(36): note: the missing variadic argument 1 is required by format string '%s'
@@ -21,14 +23,16 @@
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\floor.h(36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\ladder.h(33): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
      1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\ladder.h(34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(109): warning C4244: '=': conversion from 'Uint32' to 'float', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(396): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(397): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(499): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(500): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(509): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(510): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(644): warning C4244: '=': conversion from 'Uint32' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\egg.h(35): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\egg.h(36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(275): warning C4244: '=': conversion from 'Uint32' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(523): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(524): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(660): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(661): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(670): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(671): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\computing\source\repos\gameprogramming\src\sdl_noopengl\main.cpp(805): warning C4244: '=': conversion from 'Uint32' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"bin\sdl2template-debug.exe" /INCREMENTAL /NOLOGO /LIBPATH:graphics_dependencies\glew\lib\Release\Win32 /LIBPATH:graphics_dependencies\SDL2\lib\win32 /LIBPATH:graphics_dependencies\SDL2_image\lib\x86 /LIBPATH:graphics_dependencies\SDL2_ttf\lib\x86 /LIBPATH:graphics_dependencies\SDL2_mixer\lib\x86 SDL2.lib SDL2main.lib opengl32.lib glew32.lib SDL2_image.lib SDL2_ttf.lib SDL2_mixer.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"bin\sdl2template-debug.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"bin\sdl2template-debug.lib" /MACHINE:X86 /NODEFAULTLIB:msvcrt obj\Debug\main.obj
          sdl2template.vcxproj -> C:\Users\Computing\Source\Repos\GameProgramming\bin\sdl2template-debug.exe
@@ -36,4 +40,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.54
+Time Elapsed 00:00:00.75

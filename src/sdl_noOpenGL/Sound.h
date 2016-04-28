@@ -19,6 +19,7 @@ private:
 public:
 	Mix_Chunk *footstep = NULL;
 	Mix_Chunk *footstep2 = NULL;
+	Mix_Chunk *eat = NULL;
 	Mix_Music *theme1 = NULL;
 	Mix_Music *theme2 = NULL;
 	Mix_Music *theme3 = NULL;
@@ -37,6 +38,11 @@ void Sound::loadSounds()
 		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
 	}
 	footstep2 = Mix_LoadWAV("assets/sounds/wood-3.wav");
+	if (footstep2 == NULL)
+	{
+		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+	eat = Mix_LoadWAV("assets/sounds/eat.wav");
 	if (footstep2 == NULL)
 	{
 		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());

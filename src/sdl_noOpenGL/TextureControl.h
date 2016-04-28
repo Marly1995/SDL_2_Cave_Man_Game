@@ -24,4 +24,5 @@ public:
 	Sprite pauseCover;
 	Sprite bar;
 	Sprite enemy;
+	Sprite egg;
 };

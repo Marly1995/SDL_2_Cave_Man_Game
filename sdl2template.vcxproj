@@ -98,8 +98,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\sdl_noOpenGL\Egg.h" />
     <ClInclude Include="src\sdl_noOpenGL\Enemy.h" />
     <ClInclude Include="src\sdl_noOpenGL\Floor.h" />
+    <ClInclude Include="src\sdl_noOpenGL\GameData.h" />
     <ClInclude Include="src\sdl_noOpenGL\GameObject.h" />
     <ClInclude Include="src\sdl_noOpenGL\Ladder.h" />
     <ClInclude Include="src\sdl_noOpenGL\Level.h" />

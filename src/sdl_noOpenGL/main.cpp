@@ -8,6 +8,8 @@
 #include "Text.h"
 #include "Sound.h"
 #include "TextureControl.h"
+#include "Egg.h"
+#include "GameData.h"
 
 #include <iostream>
 #include <vector>
@@ -37,19 +39,24 @@ TextureControl texCtrl = TextureControl();
 player Player = player();
 Level level = Level("assets/sprites/floor.png", "assets/sprites/ladder.png", "assets/sprites/forest.png");
 Level level2 = Level("assets/sprites/icefloor.png", "assets/sprites/ladder.png", "assets/sprites/iceback.png");
+Level level3 = Level("assets/sprites/floor.png", "assets/sprites/ladder.png", "assets/sprites/forest.png");
 Enemy enemy = Enemy();
+GameData gameData = GameData();
 Text text = Text();
+Text score = Text();
 Sound sound = Sound();
 Floor floorArray[400];
 Ladder ladderArray[400];
+Egg eggArray[20];
+
 
 bool done = false;
 bool collisionFrame = false;
 bool pause = false;
 
-int currentLevel = 0;
+int currentLevel = 2;
 int width = 640;
-int height = 640;
+int height = 900;
 int fxVolume = 128;
 int musicVolume = 128;
 
@@ -64,12 +71,171 @@ float jumpTime = 0;
 int x;
 //TODO add save function
 //TODO compartmentalise collision for efficiency 
+void updateText()
+{
+	score.updateText();
+	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
+	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
+}
 bool handleCollision()
 {
 	//Player.moveDown = true;
 	//Player.moveUp = true;
-	for (int i = 0; i < 400; i++) {
-		if (Player.obj.collisionCheck(floorArray[i].obj) == true) {
+	if (currentLevel == 2) {
+		for (int i = 1; i < 400; i++) {
+			if (Player.obj.collisionCheck(floorArray[i].obj) == true) {
+				return true;
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < 400; i++) {
+			if (Player.obj.collisionCheck(floorArray[i].obj) == true) {
+				return true;
+			}
+		}
+	}
+	return false;
+
+}
+void resetLevel()
+{
+	for (int i = 0; i < 400; i++)
+	{
+		floorArray[i].obj.nullify();
+		ladderArray[i].obj.nullify();
+	}
+	for (int i = 0; i < 10; i++)
+	{
+		eggArray[i].obj.nullify();
+	}
+}
+void generateLevel(Level level)
+{
+	int fCount = 0;
+	int lCount = 0;
+	int eggCount = 0;
+	if (currentLevel == 0) {
+		for (int i = 0; i < 24; i++) {
+			for (int p = 0; p < 20; p++) {
+				if (level.world[i][p] == 1) {
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount].obj.definePosition();
+					fCount++;
+				}
+				if (level.world[i][p] == 2) {
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount].obj.definePosition();
+					lCount++;
+				}
+				if (level.world[i][p] == 3) {
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount].obj.definePosition();
+					eggCount++;
+				}
+			}
+		}
+		fCount = 0;
+		lCount = 0;
+		eggCount = 0;
+	}
+	if (currentLevel == 1) {
+		for (int i = 0; i < 24; i++) {
+			for (int p = 0; p < 20; p++) {
+				if (level.world2[i][p] == 1) {
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount].obj.definePosition();
+					fCount++;
+				}
+				if (level.world2[i][p] == 2) {
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount].obj.definePosition();
+					lCount++;
+				}
+				if (level.world2[i][p] == 3) {
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount].obj.definePosition();
+					eggCount++;
+				}
+			}
+		}
+	}
+	if (currentLevel == 2) {
+		for (int i = 0; i < 24; i++) {
+			for (int p = 0; p < 20; p++) {
+				if (level.world3[i][p] == 1) {
+					floorArray[fCount] = Floor(32 * p, (32 * i) + 100);
+					floorArray[fCount].obj.definePosition();
+					fCount++;
+				}
+				if (level.world3[i][p] == 2) {
+					ladderArray[lCount] = Ladder((32 * p), (32 * i) + 100);
+					ladderArray[lCount].obj.definePosition();
+					lCount++;
+				}
+				if (level.world3[i][p] == 3) {
+					eggArray[eggCount] = Egg((32 * p), (32 * i) + 100);
+					eggArray[eggCount].obj.definePosition();
+					eggCount++;
+				}
+			}
+		}
+		fCount = 0;
+		lCount = 0;
+		eggCount = 0;
+	}
+}
+void loadSprites(Level level)
+{
+	texCtrl.player.loadSprite("assets/sprites/caverman.png", ren);
+	texCtrl.floor.loadSprite(level.floor, ren);
+	texCtrl.ladder.loadSprite(level.ladder, ren);
+	texCtrl.background.loadSprite(level.background, ren);
+	texCtrl.pauseCover.loadSprite("assets/sprites/pauseCover.png", ren);
+	texCtrl.bar.loadSprite("assets/sprites/bars.png", ren);
+	texCtrl.enemy.loadSprite("assets/sprites/trex.png", ren);
+	texCtrl.egg.loadSprite("assets/sprites/egg.png", ren);
+}
+void loadLevel()
+{
+	enemy.obj.xPos = 172;
+	enemy.obj.yPos = 0;
+
+	if (currentLevel == 0)
+	{
+		loadSprites(level);
+		generateLevel(level);
+	}
+	if (currentLevel == 1)
+	{
+		resetLevel();
+		loadSprites(level2);
+		generateLevel(level2);
+	}
+	if (currentLevel == 2)
+	{
+		resetLevel();
+		loadSprites(level3);
+		generateLevel(level3);
+	}
+}
+bool handleEggCollision()
+{
+	//Player.moveDown = true;
+	//Player.moveUp = true;
+	for (int i = 0; i < 10; i++) {
+		if (Player.obj.collisionCheck(eggArray[i].obj) == true) {			
+			eggArray[i].obj.dead = true;
+			eggArray[i].obj.definePosition();
+			gameData.currentScore += 50;
+			gameData.eggCount++;
+			if (gameData.eggCount >= 10) {
+				currentLevel++;
+				loadLevel();
+			}
+			Mix_PlayChannel(2, sound.eat, 0);
+			gameData.convertScore();
+			updateText();
 			return true;
 		}
 	}
@@ -120,32 +286,36 @@ void handleInput()
 				switch (event.key.keysym.sym)
 				{
 					//Player.hitCtrl escape to exit
-					case SDLK_ESCAPE: done = true;
+				case SDLK_ESCAPE: done = true;
+					break;
+				case SDLK_w: if (handleLadderCollision()) {
+					Player.moveUp = true;
+					Player.climbCtrl = true;
+				}
+							 break;
+				case SDLK_s: if (handleLadderCollision()) {
+					Player.moveDown = true;
+					Player.climbCtrl = true;
+				}
+							 break;
+				case SDLK_a:
+					playerFlip = SDL_FLIP_HORIZONTAL;
+					Player.moveLeft = true;
+					Player.moveCtrl = true;
+					break;
+				case SDLK_d:
+					playerFlip = SDL_FLIP_NONE;
+					Player.moveRight = true;
+					Player.moveCtrl = true;
+					break;
+					
+				case SDLK_SPACE: if (Player.jumpCtrl == false) {
+					Player.jumpCtrl = true;
+					Player.jumpTime = 0;
+					jumpTime = 0;
+				}
 						break;
-					case SDLK_w: if (handleLadderCollision()) {
-						Player.moveUp = true;
-						Player.climbCtrl = true;
-					}
-						break;
-					case SDLK_s: if (handleLadderCollision()) {
-						Player.moveDown = true;
-						Player.climbCtrl = true;
-					}
-						break;
-					case SDLK_a:
-						playerFlip = SDL_FLIP_HORIZONTAL;
-						Player.moveLeft = true;
-						Player.moveCtrl = true;
-						break;
-					case SDLK_d:
-						playerFlip = SDL_FLIP_NONE;
-						Player.moveRight = true;
-						Player.moveCtrl = true;
-						break;
-					case SDLK_SPACE: Player.jumpCtrl = true;
-						Player.jumpTime = 0;
-						jumpTime = 0;
-						break;
+					
 					case SDLK_p: if (pause == false) { pause = true; }
 								 else { pause = false; }
 						break;
@@ -153,7 +323,7 @@ void handleInput()
 						//pause menu
 						if (pause == true) 
 						{
-						case SDLK_r: 
+						case SDLK_r:
 							break;
 						case SDLK_EQUALS: 
 							musicVolume += 8;
@@ -195,66 +365,15 @@ void handleInput()
 		}
 	}
 }
-
-void generateLevel(Level level)
-{
-	int fCount = 0;
-	if (currentLevel == 0) {
-		for (int i = 0; i < 20; i++) {
-			for (int p = 0; p < 20; p++) {
-				if (level.world[i][p] == 1) {
-					floorArray[fCount] = Floor(32 * p, 32 * i);
-				}
-				if (level.world[i][p] == 2) {
-					ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);
-				}
-				fCount++;
-			}
-		}
-	}
-	if (currentLevel == 1) {
-		for (int i = 0; i < 20; i++) {
-			for (int p = 0; p < 20; p++) {
-				if (level.world2[i][p] == 1) {
-					floorArray[fCount] = Floor(32 * p, 32 * i);
-				}
-				if (level.world2[i][p] == 2) {
-					ladderArray[fCount] = Ladder((32 * p), (32 * i) - 1);
-				}
-				fCount++;
-			}
-		}
-	}
-}
-void loadSprites(Level level)
-{
-	texCtrl.player.loadSprite("assets/sprites/caverman.png", ren);
-	texCtrl.floor.loadSprite(level.floor, ren);
-	texCtrl.ladder.loadSprite(level.ladder, ren);
-	texCtrl.background.loadSprite(level.background, ren);
-	texCtrl.pauseCover.loadSprite("assets/sprites/pauseCover.png", ren);
-	texCtrl.bar.loadSprite("assets/sprites/bars.png", ren);
-	texCtrl.enemy.loadSprite("assets/sprites/trex.png", ren);
-}
-void loadLevel()
-{
-	if (currentLevel == 0)
-	{
-		loadSprites(level);
-		generateLevel(level);
-	}
-	if (currentLevel == 1)
-	{
-		loadSprites(level2);
-		generateLevel(level2);
-	}
-}
 // TODO playing animation audio
 void simulateAudio()
 {
 	Mix_VolumeMusic(musicVolume);
 	Mix_VolumeChunk(sound.footstep, fxVolume);
 	Mix_VolumeChunk(sound.footstep2, fxVolume);
+	//if (handleEggCollision){ Mix_PlayChannel(1, sound.eat, 0); }
+	if (pause == true){ Mix_PauseMusic(); }
+	else { Mix_ResumeMusic(); }
 	if (Player.animation == "walk") {
 		if(audioTime == 14){ Mix_PlayChannel(1, sound.footstep, 0); }
 		if (audioTime >= 28){ Mix_PlayChannel(1, sound.footstep2, 0); 
@@ -283,13 +402,21 @@ void simulateAnimation()
 		if (Player.playerWalk > 7) {
 			Player.playerWalk = 0;
 		}
-
 		if (Player.climbCtrl == true)
 		{
 			Player.playerClimb += 1;
 			if (Player.playerClimb > 3) {
 				Player.playerClimb = 0;
 			}
+		}
+
+		enemy.climb += 1;
+		if (enemy.climb > 1) {
+			enemy.climb = 0;
+		}
+		enemy.walk += 1;
+		if (enemy.walk > 6) {
+			enemy.walk = 0;
 		}
 		animTime = 0;
 	}
@@ -391,14 +518,10 @@ void handleMovement()
 		Player.hSpeed += 3;
 	}
 
-	if (Player.jumpCtrl == true && jumpTime < 20.0f
+	if (jumpTime < 20.0f
 		&& !handleLadderCollision()) {
 		Player.vSpeed -= (3.8 - Player.jumpTime);
 		Player.jumpTime += (0.05 * jumpTime);
-		if (jumpTime >= 20) {
-			Player.jumpCtrl = false;
-			jumpTime = 0;
-		}
 	}
 	
 
@@ -407,6 +530,10 @@ void handleMovement()
 	}
 	if (Player.jumpCtrl == false &&
 		Player.vSpeed <= -2) {
+		Player.vSpeed = -2;
+	}
+	if (handleLadderCollision()
+		&& Player.vSpeed <= -2) {
 		Player.vSpeed = -2;
 	}
 	if (Player.hSpeed >= 3) {
@@ -426,19 +553,26 @@ void attemptMovement()
 		if (Player.hSpeed < 0) {
 			Player.obj.xPos += 1;
 		}
-
 	}
 
 	Player.obj.yPos += Player.vSpeed * runTime;
 	while (handleCollision()) {
 		if (Player.vSpeed > 0) {
 			Player.obj.yPos -= 1;
+			//if (jumpTime > 19) {
+				Player.jumpCtrl = false;
+				jumpTime = 0;
+			//}
 		}
 		if (Player.vSpeed < 0) {
 			Player.obj.yPos += 1;
 		}
 		collisionFrame = true;
 	}
+}
+void objectInteraction()
+{
+	
 }
 // tag::updateSimulation[]
 //TODO add score 
@@ -447,9 +581,22 @@ void attemptMovement()
 //TODO add multiple levels
 void updateSimulation(double smiulationTime = 0.02) //update simulation with an amount of time to simulate for (in seconds)
 {
+	if (currentLevel == 2) {
+		floorArray[0].obj.yPos -= 2;
+		floorArray[0].obj.definePosition();
+		if (floorArray[0].obj.yPos <= 100) {
+			floorArray[0].obj.yPos = 900;
+		}
+		while (Player.obj.collisionCheck(floorArray[0].obj) == true) {
+			Player.obj.yPos -= 1;
+		}
+	}
+	
 	//animTime++;
+	Player.jumpCtrl = true;
+	cout << Player.jumpCtrl << endl;
 	animTime += (runTime);
-	audioTime++;
+	audioTime += runTime;
 	jumpTime += runTime;
 	
 	enemy.enemyMove();
@@ -459,6 +606,7 @@ void updateSimulation(double smiulationTime = 0.02) //update simulation with an 
 		handleMovement();
 		handleForces();
 		attemptMovement();
+		handleEggCollision();
 	}
 	simulateAnimation();
 	if (pause == false) {
@@ -481,6 +629,9 @@ void render()
 		SDL_Rect srcEnemy;
 		SDL_Rect dstEnemy;
 
+		SDL_Rect srcEgg;
+		SDL_Rect dstScore;
+
 		SDL_Rect srcBar;
 		SDL_Rect dstBar;
 		SDL_Rect dstBar2;
@@ -490,6 +641,16 @@ void render()
 
 		SDL_Rect srcFloor;
 		SDL_Rect dstFloor;
+
+		dstScore.x = 50;
+		dstScore.y = 20;
+		dstScore.w = gameData.scoreWidth;
+		dstScore.h = 32;
+
+		srcEgg.x = 0;
+		srcEgg.y = 0;
+		srcEgg.w = 29;
+		srcEgg.h = 22;
 
 		srcPlayer.x = Player.xPlayerSpriteIndex;
 		srcPlayer.y = Player.yPlayerSpriteIndex;
@@ -503,8 +664,8 @@ void render()
 
 		srcEnemy.x = enemy.xEnemySpriteIndex;
 		srcEnemy.y = enemy.yEnemySpriteIndex;
-		srcEnemy.w = 97;
-		srcEnemy.h = 71;
+		srcEnemy.w = 80;
+		srcEnemy.h = 62;
 
 		dstEnemy.x = enemy.obj.xPos;
 		dstEnemy.y = enemy.obj.yPos;
@@ -527,7 +688,7 @@ void render()
 		srcBackground.h = 378;
 
 		dstBackground.x = 0;
-		dstBackground.y = 0;
+		dstBackground.y = 100;
 		dstBackground.w = 1800;
 		dstBackground.h = 800;
 
@@ -553,20 +714,17 @@ void render()
 
 		SDL_RenderCopy(ren, texCtrl.background.Tex, &srcBackground, &dstBackground);
 
-		for (int i = 0; i < 20; i++) {
-			dstFloor.y = (32 * i);
-			for (int p = 0; p < 20; p++) {
-				dstFloor.x = (32 * p);
-				if (level.world[i][p] == 1) {
-					SDL_RenderCopy(ren, texCtrl.floor.Tex, &srcFloor, &dstFloor);
-				}
-				if (level.world[i][p] == 2) {
-					SDL_RenderCopy(ren, texCtrl.ladder.Tex, &srcFloor, &dstFloor);
-				}
-			}
-			dstFloor.x = 0;
+		for (int i = 0; i < 400; i++)
+		{			
+			SDL_RenderCopy(ren, texCtrl.floor.Tex, &srcFloor, &floorArray[i].obj.rect);
+			SDL_RenderCopy(ren, texCtrl.ladder.Tex, &srcFloor, &ladderArray[i].obj.rect);
+		}
+		for (int i = 0; i < 10; i++)
+		{
+			SDL_RenderCopy(ren, texCtrl.egg.Tex, &srcEgg, &eggArray[i].obj.rect);
 		}
 		SDL_RenderCopyEx(ren, texCtrl.player.Tex, &srcPlayer, &dstPlayer, 0, NULL, playerFlip);
+		SDL_RenderCopyEx(ren, texCtrl.enemy.Tex, &srcEnemy, &dstEnemy, 0, NULL, enemy.flip);
 		if (pause == true){ 
 			SDL_RenderCopy(ren, texCtrl.pauseCover.Tex, NULL, &dstBackground);
 			SDL_RenderCopy(ren, text.textTex, NULL, &text.textRect);
@@ -574,6 +732,7 @@ void render()
 			SDL_RenderCopy(ren, texCtrl.bar.Tex, &srcBar, &dstBar2);
 		}
 
+		SDL_RenderCopy(ren, score.textTex, NULL, &dstScore);
 
 		//Update the screen
 		SDL_RenderPresent(ren);
@@ -582,6 +741,7 @@ void render()
 // based on http://www.willusher.io/sdl2%20tutorials/2013/08/17/lesson-1-hello-world/
 int main( int argc, char* args[] )
 {
+	gameData.convertScore();
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -616,16 +776,17 @@ int main( int argc, char* args[] )
 	}
 	sound.loadSounds();
 	text.initText();
+	score.initText();
 	text.textSurface = TTF_RenderText_Solid(text.sans, "paused", text.White);
 	text.textTex = SDL_CreateTextureFromSurface(ren, text.textSurface);
+	score.textSurface = TTF_RenderText_Solid(score.sans, gameData.score.c_str(), score.White);
+	score.textTex = SDL_CreateTextureFromSurface(ren, score.textSurface);
 
 	loadLevel();
 
 	
 	Mix_PlayMusic(sound.theme1, -1);
-	
-	//Player.xStartingPosition = level.xStartPos;
-	//Player.yStartingPosition = level.yStartPos;
+
 	Player.obj.xPos = trunc(level.xStartPos);
 	Player.obj.yPos = trunc(level.yStartPos);
 	//currentTime = SDL_GetTicks();

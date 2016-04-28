@@ -14,6 +14,8 @@ using namespace std;
 class GameObject
 {
 public:
+	SDL_Rect rect;
+
 	float xPos;
 	float yPos;
 	int width = 32;
@@ -24,10 +26,14 @@ public:
 	int topSide;
 	int botSide;
 
+	bool dead = false;
+
 	void findCollisionPlayer();
 	void findCollision();
 	bool collisionCheck(GameObject other);
 	bool insideCollisionCheck(GameObject other);
+	void definePosition();
+	void nullify();
 };
 
 void GameObject::findCollision()
@@ -85,4 +91,25 @@ bool GameObject::insideCollisionCheck(GameObject other) {
 		return false;
 	}
 	return true;
+}
+
+void GameObject::definePosition()
+{
+	if (dead == true) {
+		nullify();
+	}
+	rect.x = xPos;
+	rect.y = yPos;
+	rect.w = width;
+	rect.h = height;
+}
+
+void GameObject::nullify()
+{
+	xPos = NULL;
+	yPos = NULL;
+	width = NULL;
+	height = NULL;
+	rect.x = NULL;
+	rect.y = NULL;
 }

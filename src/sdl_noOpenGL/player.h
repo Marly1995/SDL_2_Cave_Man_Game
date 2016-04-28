@@ -36,7 +36,7 @@ public:
 	bool canFall;
 	bool moveCtrl;
 	bool climbCtrl;
-	bool jumpCtrl;
+	bool jumpCtrl = false;
 	bool hitCtrl;
 
 	int playerWalk = 0;

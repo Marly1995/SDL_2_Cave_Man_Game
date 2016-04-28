@@ -36,6 +36,7 @@ public:
 public:
 	void initText();
 	Text();
+	void updateText();
 };
 
 Text::Text()
@@ -51,4 +52,11 @@ void Text::initText()
 	{
 		std::cout << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
 	}
+}
+
+void Text::updateText()
+{
+	SDL_FreeSurface(textSurface);
+	textSurface = nullptr;
+	textTex = nullptr;
 }
