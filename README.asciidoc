@@ -1,3 +1,10 @@
+## Version
+
+The current version of the project features a broken build.
+Previous versions may contain better working code.
+This project is currently on hold but may be picked up in the future.
+Feel free to play around with it!
+
 ## Assets
 
 The assets used in this game are from the Superpowers https://sparklinlabs.itch.io/superpowers[asset pack].
